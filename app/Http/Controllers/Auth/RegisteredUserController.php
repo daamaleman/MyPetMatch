@@ -34,18 +34,27 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['nullable', 'in:adoptante,organizacion'], // admin no se expone en registro público
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => in_array($request->role, ['adoptante','organizacion']) ? $request->role : 'adoptante',
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME);
+        $target = match($user->role ?? null) {
+            'organizacion' => route('orgs.dashboard'),
+            'adoptante' => route('adoptions.dashboard'),
+            'admin' => route('orgs.dashboard'),
+            default => RouteServiceProvider::HOME,
+        };
+
+        return redirect($target);
     }
 }

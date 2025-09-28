@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\OrgDashboardController;
+use App\Http\Controllers\OrgPetController;
+use App\Http\Controllers\OrgAdoptionApplicationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,6 +34,29 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Dashboard y recursos de Organizaciones
+    Route::prefix('orgs')->as('orgs.')->middleware('role:organizacion,admin')->group(function () {
+        Route::get('/', [OrgDashboardController::class, 'index'])->name('dashboard');
+
+        // Mascotas de la organización
+        Route::resource('pets', OrgPetController::class)->parameters([
+            'pets' => 'pet',
+        ]);
+
+        // Solicitudes de adopción que pertenecen a la organización
+        Route::resource('adoptions', OrgAdoptionApplicationController::class)->parameters([
+            'adoptions' => 'adoption',
+        ]);
+    });
+
+    // Zona adoptantes (dashboard y solicitudes propias)
+    Route::prefix('adoptions')->as('adoptions.')->middleware('role:adoptante,admin')->group(function () {
+        // Vistas ya existentes en resources/views/adoptions/*.blade.php (index, dashboard, details)
+        Route::view('/', 'adoptions.dashboard')->name('dashboard');
+        Route::view('/mine', 'adoptions.index')->name('index');
+        Route::view('/{id}', 'adoptions.details')->name('details');
+    });
 });
 
 require __DIR__.'/auth.php';

@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'organization_id',
     ];
 
     /**
@@ -42,4 +44,15 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    // Helpers de rol
+    public function isAdoptante(): bool { return $this->role === 'adoptante'; }
+    public function isOrganizacion(): bool { return $this->role === 'organizacion'; }
+    public function isAdmin(): bool { return $this->role === 'admin'; }
+
+    // Relaciones
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
 }

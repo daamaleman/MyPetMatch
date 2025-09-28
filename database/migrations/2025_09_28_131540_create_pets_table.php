@@ -13,6 +13,20 @@ return new class extends Migration
     {
         Schema::create('pets', function (Blueprint $table) {
             $table->id();
+            // Nota: evitamos FK directa aquí por el orden de migraciones; se puede agregar en una migración posterior
+            $table->unsignedBigInteger('organization_id');
+            $table->index('organization_id');
+            $table->string('name');
+            $table->string('species')->nullable();
+            $table->string('breed')->nullable();
+            $table->string('age')->nullable();
+            $table->string('size')->nullable();
+            $table->enum('sex', ['male','female','unknown'])->nullable();
+            $table->text('story')->nullable();
+            $table->string('cover_image')->nullable();
+            $table->json('image_gallery')->nullable();
+            $table->json('video_gallery')->nullable();
+            $table->enum('status', ['draft','published','archived'])->default('draft');
             $table->timestamps();
         });
     }

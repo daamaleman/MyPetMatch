@@ -29,7 +29,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        $user = $request->user();
+        $target = match($user->role ?? null) {
+            'organizacion' => route('orgs.dashboard'),
+            'adoptante' => route('adoptions.dashboard'),
+            'admin' => route('orgs.dashboard'), // por ahora admin entra al panel org
+            default => RouteServiceProvider::HOME,
+        };
+
+        return redirect()->intended($target);
     }
 
     /**

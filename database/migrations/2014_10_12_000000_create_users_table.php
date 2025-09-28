@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            // Rol de usuario: adoptante (default), organizacion, admin
+            $table->enum('role', ['adoptante', 'organizacion', 'admin'])->default('adoptante');
             $table->rememberToken();
             $table->timestamps();
         });

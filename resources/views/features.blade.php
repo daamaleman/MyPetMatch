@@ -15,27 +15,7 @@
         </style>
     </head>
     <body class="font-poppins antialiased bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white min-h-screen flex flex-col">
-        <!-- Header (replicado de About) -->
-        <header class="border-b border-neutral-mid/30 bg-white/80 dark:bg-neutral-dark/70 backdrop-blur supports-[backdrop-filter]:bg-white/50 sticky top-0 z-30">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                <a href="/" class="flex items-center gap-3 font-semibold">
-                    <img src="{{ asset('storage/MyPetMatchLogo-Transparente.png') }}" alt="MyPetMatch" class="h-12 w-12 md:h-14 md:w-14 object-contain"/>
-                    <span>MyPetMatch</span>
-                </a>
-                <nav class="hidden md:flex items-center gap-8 text-sm">
-                    <a href="/" class="hover:text-primary">Inicio</a>
-                    <a href="{{ route('about') }}" class="hover:text-primary">Nosotros</a>
-                    <a href="{{ url('/features') }}" class="text-primary font-medium">Cómo Funciona</a>
-                    <a href="#contacto" class="hover:text-primary">Contacto</a>
-                </nav>
-                <div class="flex items-center gap-3">
-                    <a href="{{ route('login') }}" class="hidden sm:inline-flex text-sm">Iniciar Sesión</a>
-                    @if(Route::has('register'))
-                        <a href="{{ route('register') }}" class="btn btn-primary text-sm">Registrarse</a>
-                    @endif
-                </div>
-            </div>
-        </header>
+        @include('partials.header')
 
         <main class="flex-1">
             @php
