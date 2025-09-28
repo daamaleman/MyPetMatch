@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pet;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class PetController extends Controller
 {
@@ -13,18 +11,7 @@ class PetController extends Controller
      */
     public function index()
     {
-        $query = Pet::query()->with('organization')
-            ->where('status', 'available');
-
-        // Basic filters
-        $filters = request()->only(['species', 'city', 'size']);
-        if (!empty($filters['species'])) $query->where('species', $filters['species']);
-        if (!empty($filters['city'])) $query->whereHas('organization', fn($q) => $q->where('city', $filters['city']));
-        if (!empty($filters['size'])) $query->where('size', $filters['size']);
-
-        $pets = $query->latest()->paginate(12);
-
-        return response()->json($pets);
+        //
     }
 
     /**
@@ -32,7 +19,7 @@ class PetController extends Controller
      */
     public function create()
     {
-        return response()->json(['message' => 'Not implemented'], 405);
+        //
     }
 
     /**
@@ -40,7 +27,7 @@ class PetController extends Controller
      */
     public function store(Request $request)
     {
-        return response()->json(['message' => 'Not implemented'], 405);
+        //
     }
 
     /**
@@ -48,8 +35,7 @@ class PetController extends Controller
      */
     public function show(string $id)
     {
-        $pet = Pet::with('organization')->findOrFail($id);
-        return response()->json($pet);
+        //
     }
 
     /**
@@ -57,7 +43,7 @@ class PetController extends Controller
      */
     public function edit(string $id)
     {
-        return response()->json(['message' => 'Not implemented'], 405);
+        //
     }
 
     /**
@@ -65,7 +51,7 @@ class PetController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        return response()->json(['message' => 'Not implemented'], 405);
+        //
     }
 
     /**
@@ -73,6 +59,6 @@ class PetController extends Controller
      */
     public function destroy(string $id)
     {
-        return response()->json(['message' => 'Not implemented'], 405);
+        //
     }
 }

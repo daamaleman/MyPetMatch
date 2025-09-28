@@ -13,28 +13,6 @@ return new class extends Migration
     {
         Schema::create('organizations', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->text('description')->nullable();
-            $table->string('email')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('website')->nullable();
-            // Address fields
-            $table->string('address_line1')->nullable();
-            $table->string('address_line2')->nullable();
-            $table->string('city')->nullable();
-            $table->string('state')->nullable();
-            $table->string('postal_code', 20)->nullable();
-            $table->string('country', 2)->nullable(); // ISO 3166-1 alpha-2
-            // Social
-            $table->string('facebook_url')->nullable();
-            $table->string('instagram_url')->nullable();
-            // Media
-            $table->string('logo_path')->nullable();
-            $table->string('banner_path')->nullable();
-            // Status & verification
-            $table->timestamp('verified_at')->nullable();
-            $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
             $table->timestamps();
         });
     }
