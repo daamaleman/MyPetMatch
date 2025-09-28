@@ -1,3 +1,81 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import "@fontsource/poppins/400.css";
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/600.css";
+@import "@fontsource/poppins/700.css";
+@import "@fontsource/poppins/800.css";
+@import "@fontsource/inter/300.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+
+/* -------------------------------------------------
+   Variables CSS de marca (útiles en casos custom)
+   ------------------------------------------------- */
+:root {
+  --color-primary: #05706C;
+  --color-secondary: #F57952;
+  --color-neutral-light: #FAEFEA;
+  --color-neutral-dark: #23292C;
+  --color-neutral-mid: #C9D1D9;
+  --color-warning: #EFA71D;
+  --color-danger: #E03A2B;
+  --color-white: #FFFFFF;
+}
+
+/* -------------------------------------------------
+   Estilos base tipográficos
+   ------------------------------------------------- */
+body {
+  @apply font-poppins bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white;
+}
+
+/* -------------------------------------------------
+   Botones reutilizables
+   ------------------------------------------------- */
+.btn {
+  @apply inline-block font-poppins font-medium px-5 py-2.5 rounded-xl transition;
+}
+
+.btn-primary {
+  @apply bg-primary text-white hover:bg-primary-light;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-white hover:bg-[#e45d3c];
+}
+
+.btn-warning {
+  @apply bg-warning text-white hover:bg-yellow-600;
+}
+
+.btn-danger {
+  @apply bg-danger text-white hover:bg-red-700;
+}
+
+/* -------------------------------------------------
+   Badges (etiquetas)
+   ------------------------------------------------- */
+.badge {
+  @apply inline-block text-xs font-inter font-medium px-3 py-1 rounded-full;
+}
+
+.badge-primary {
+  @apply bg-primary text-white;
+}
+
+.badge-secondary {
+  @apply bg-secondary text-white;
+}
+
+.badge-warning {
+  @apply bg-warning text-white;
+}
+
+.badge-danger {
+  @apply bg-danger text-white;
+}
