@@ -24,7 +24,7 @@
                 <nav class="hidden md:flex items-center gap-8 text-sm">
                     <a href="/" class="hover:text-primary">Inicio</a>
                     <a href="{{ route('about') }}" class="text-primary font-medium">Nosotros</a>
-                    <a href="/#como-funciona" class="hover:text-primary">Cómo Funciona</a>
+                    <a href="{{ route('features') }}" class="hover:text-primary">Cómo Funciona</a>
                     <a href="#contacto" class="hover:text-primary">Contacto</a>
                 </nav>
                 <div class="flex items-center gap-3">
