@@ -222,7 +222,7 @@
                                     Mejora tu alcance, publica mascotas fácilmente y administra solicitudes con herramientas diseñadas para organizaciones de rescate.
                                 </p>
                                 <div class="mt-5 flex flex-wrap gap-3">
-                                    <a href="mailto:contacto@mypetmatch.app" class="btn btn-primary">Escríbenos</a>
+                                    <a href="mailto:diedereichq@uamv.edu.ni" class="btn btn-primary">Escríbenos</a>
                                     <a href="{{ route('register') }}" class="btn btn-secondary">Crear cuenta de organización</a>
                                 </div>
                             </div>
