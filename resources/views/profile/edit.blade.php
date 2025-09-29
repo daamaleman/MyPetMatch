@@ -26,27 +26,17 @@
             </div>
         </div>
 
-        @php $role = auth()->user()->role ?? null; @endphp
+        @php 
+            $role = auth()->user()->role ?? null; 
+            $requireAdopter = ($requireAdopter ?? false) ? true : false;
+        @endphp
 
         <div class="mt-6 grid grid-cols-1 xl:grid-cols-3 gap-6">
             <!-- Columna principal -->
             <div class="xl:col-span-2 space-y-6">
                 <!-- Info de cuenta -->
                 <div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6">
-                    <h2 class="text-lg font-semibold">Información de cuenta</h2>
-                    <p class="text-sm text-neutral-dark/70">Nombre y correo electrónico.</p>
-                    <div class="mt-4 max-w-xl">
-                        @include('profile.partials.update-profile-information-form')
-                    </div>
-                </div>
-
-                <!-- Seguridad -->
-                <div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6">
-                    <h2 class="text-lg font-semibold">Seguridad</h2>
-                    <p class="text-sm text-neutral-dark/70">Actualiza tu contraseña periódicamente.</p>
-                    <div class="mt-4 max-w-xl">
-                        @include('profile.partials.update-password-form')
-                    </div>
+                    @include('profile.partials.update-profile-information-form')
                 </div>
 
                 <!-- Adoptante: datos de contacto y dirección -->
@@ -54,24 +44,29 @@
                 <div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6">
                     <h2 class="text-lg font-semibold">Datos de Adoptante</h2>
                     <p class="text-sm text-neutral-dark/70">Estos datos ayudarán a las organizaciones a contactarte.</p>
+                    @if($requireAdopter)
+                        <div class="mt-3 rounded-xl border border-warning/30 bg-yellow-50 dark:bg-yellow-900/20 text-sm p-3 text-neutral-dark/80 dark:text-neutral-200">
+                            Por favor completa los datos marcados como obligatorios para continuar con tu solicitud de adopción.
+                        </div>
+                    @endif
                     @php $ap = optional(auth()->user()->adopterProfile); @endphp
-                    <form class="mt-4 max-w-xl" method="POST" action="{{ route('profile.adopter.update') }}">
+                    <form class="mt-4 max-w-xl" method="POST" action="{{ route('profile.adopter.update', request()->only(['from','require_adopter'])) }}">
                         @csrf
                         @method('PATCH')
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-sm" for="phone">Teléfono</label>
-                                <input id="phone" name="phone" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('phone', $ap->phone) }}">
+                                <label class="text-sm" for="phone">Teléfono @if($requireAdopter)<span class="text-danger">*</span>@endif</label>
+                                <input id="phone" name="phone" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('phone', $ap->phone) }}" @if($requireAdopter) required @endif>
                                 @error('phone')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
-                                <label class="text-sm" for="zip">Código Postal</label>
-                                <input id="zip" name="zip" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('zip', $ap->zip) }}">
+                                <label class="text-sm" for="zip">Código Postal @if($requireAdopter)<span class="text-danger">*</span>@endif</label>
+                                <input id="zip" name="zip" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('zip', $ap->zip) }}" @if($requireAdopter) required @endif>
                                 @error('zip')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div class="md:col-span-2">
-                                <label class="text-sm" for="address_line1">Dirección</label>
-                                <input id="address_line1" name="address_line1" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('address_line1', $ap->address_line1) }}">
+                                <label class="text-sm" for="address_line1">Dirección @if($requireAdopter)<span class="text-danger">*</span>@endif</label>
+                                <input id="address_line1" name="address_line1" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('address_line1', $ap->address_line1) }}" @if($requireAdopter) required @endif>
                                 @error('address_line1')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div class="md:col-span-2">
@@ -80,18 +75,18 @@
                                 @error('address_line2')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
-                                <label class="text-sm" for="city">Ciudad</label>
-                                <input id="city" name="city" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('city', $ap->city) }}">
+                                <label class="text-sm" for="city">Ciudad @if($requireAdopter)<span class="text-danger">*</span>@endif</label>
+                                <input id="city" name="city" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('city', $ap->city) }}" @if($requireAdopter) required @endif>
                                 @error('city')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
-                                <label class="text-sm" for="state">Estado/Provincia</label>
-                                <input id="state" name="state" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('state', $ap->state) }}">
+                                <label class="text-sm" for="state">Estado/Provincia @if($requireAdopter)<span class="text-danger">*</span>@endif</label>
+                                <input id="state" name="state" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('state', $ap->state) }}" @if($requireAdopter) required @endif>
                                 @error('state')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div class="md:col-span-2">
-                                <label class="text-sm" for="country">País</label>
-                                <input id="country" name="country" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('country', $ap->country) }}">
+                                <label class="text-sm" for="country">País @if($requireAdopter)<span class="text-danger">*</span>@endif</label>
+                                <input id="country" name="country" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('country', $ap->country) }}" @if($requireAdopter) required @endif>
                                 @error('country')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
                         </div>
@@ -101,6 +96,11 @@
                     </form>
                 </div>
                 @endif
+
+                <!-- Seguridad -->
+                <div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6">
+                    @include('profile.partials.update-password-form')
+                </div>
 
                 <!-- Organización: perfil extendido -->
                 @if(in_array($role, ['organizacion','admin']))
@@ -157,9 +157,7 @@
 
                 <!-- Eliminar cuenta -->
                 <div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6">
-                    <h2 class="text-lg font-semibold">Eliminar cuenta</h2>
-                    <p class="text-sm text-neutral-dark/70">Esta acción no se puede deshacer.</p>
-                    <div class="mt-4 max-w-xl">
+                    <div class="max-w-xl">
                         @include('profile.partials.delete-user-form')
                     </div>
                 </div>

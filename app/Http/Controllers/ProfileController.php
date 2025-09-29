@@ -17,8 +17,12 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $from = (string) $request->query('from', '');
+        $requireAdopter = $request->boolean('require_adopter') || $from === 'adoption';
+
         return view('profile.edit', [
             'user' => $request->user(),
+            'requireAdopter' => $requireAdopter,
         ]);
     }
 
@@ -110,14 +114,19 @@ class ProfileController extends Controller
             abort(403);
         }
 
+        $from = (string) $request->query('from', '');
+        $require = $request->boolean('require_adopter') || $from === 'adoption';
+
+        $requiredRule = $require ? 'required' : 'nullable';
+
         $data = $request->validate([
-            'phone' => ['nullable','string','max:50'],
-            'address_line1' => ['nullable','string','max:255'],
+            'phone' => [$requiredRule,'string','max:50'],
+            'address_line1' => [$requiredRule,'string','max:255'],
             'address_line2' => ['nullable','string','max:255'],
-            'city' => ['nullable','string','max:120'],
-            'state' => ['nullable','string','max:120'],
-            'country' => ['nullable','string','max:120'],
-            'zip' => ['nullable','string','max:20'],
+            'city' => [$requiredRule,'string','max:120'],
+            'state' => [$requiredRule,'string','max:120'],
+            'country' => [$requiredRule,'string','max:120'],
+            'zip' => [$requiredRule,'string','max:20'],
         ]);
 
         $profile = $user->adopterProfile;
@@ -127,6 +136,11 @@ class ProfileController extends Controller
             $user->adopterProfile()->create($data);
         }
 
-        return Redirect::route('profile.edit')->with('status', 'adopter-updated');
+        $redirect = Redirect::route('profile.edit');
+        if ($require) {
+            // Preserve the requirement context on redirect so the UI keeps showing required marks
+            $redirect = Redirect::route('profile.edit', ['from' => 'adoption', 'require_adopter' => 1]);
+        }
+        return $redirect->with('status', 'adopter-updated');
     }
 }
