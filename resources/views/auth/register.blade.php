@@ -10,6 +10,20 @@
     <form method="POST" action="{{ route('register') }}" class="space-y-4">
         @csrf
 
+        <!-- Tipo de registro (switch mejorado, centrado) -->
+        <div class="text-center">
+            <label for="is_organization" class="inline-flex items-center gap-3 cursor-pointer select-none">
+                <input id="is_organization" name="is_organization" type="checkbox" value="1" class="sr-only peer" {{ old('is_organization') ? 'checked' : '' }}>
+                <span class="w-11 h-6 rounded-full bg-neutral-mid/40 relative transition-colors peer-checked:bg-primary">
+                    <span class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></span>
+                </span>
+                <span class="text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">Registrarme como organización</span>
+            </label>
+            <div class="mt-1 text-xs text-neutral-dark/60 dark:text-neutral-300">
+                Podrás completar datos de organización más tarde
+            </div>
+        </div>
+
         <!-- Name -->
         <div>
             <label for="name" class="block text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">Nombre</label>
@@ -66,14 +80,52 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <!-- Role -->
-        <div>
-            <label for="role" class="block text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">Rol</label>
-            <select id="role" name="role" class="mt-1 block w-full rounded-md border-neutral-mid/40 bg-neutral-light dark:bg-neutral-dark/60 text-neutral-dark dark:text-neutral-white shadow-sm focus:border-primary focus:ring-primary">
-                <option value="adoptante" {{ old('role')==='adoptante' ? 'selected' : '' }}>Adoptante</option>
-                <option value="organizacion" {{ old('role')==='organizacion' ? 'selected' : '' }}>Organización</option>
-            </select>
-            <x-input-error :messages="$errors->get('role')" class="mt-2" />
+        <!-- Campos de Organización (integrados, no dentro de otra tarjeta) -->
+        <div id="org-fields" class="mt-2 {{ old('is_organization') ? '' : 'hidden' }}">
+            <div class="text-center mb-3">
+                <div><span class="badge badge-secondary">Cuenta de organización</span></div>
+                <p class="mt-1 text-xs text-neutral-dark/70 dark:text-neutral-300">
+                    Completa estos datos para validar tu organización. 
+                    <span class="font-medium">Los campos marcados con <span class="text-danger">*</span> son obligatorios</span>; el resto puedes completarlos más tarde.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label for="org_name" class="block text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">Nombre de la organización <span class="text-danger">*</span></label>
+                    <input id="org_name" name="org_name" type="text" value="{{ old('org_name') }}" class="mt-1 block w-full rounded-md border-neutral-mid/40 bg-neutral-light dark:bg-neutral-dark/60 text-neutral-dark dark:text-neutral-white shadow-sm focus:border-primary focus:ring-primary" placeholder="Ej. Fundación Patitas" />
+                    <x-input-error :messages="$errors->get('org_name')" class="mt-2" />
+                </div>
+                <div>
+                    <label for="org_email" class="block text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">Email de contacto <span class="text-xs font-normal text-neutral-dark/60 dark:text-neutral-300">(opcional)</span></label>
+                    <input id="org_email" name="org_email" type="email" value="{{ old('org_email') }}" class="mt-1 block w-full rounded-md border-neutral-mid/40 bg-neutral-light dark:bg-neutral-dark/60 text-neutral-dark dark:text-neutral-white shadow-sm focus:border-primary focus:ring-primary" />
+                    <x-input-error :messages="$errors->get('org_email')" class="mt-2" />
+                </div>
+                <div>
+                    <label for="org_phone" class="block text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">Teléfono <span class="text-xs font-normal text-neutral-dark/60 dark:text-neutral-300">(opcional)</span></label>
+                    <input id="org_phone" name="org_phone" type="text" value="{{ old('org_phone') }}" class="mt-1 block w-full rounded-md border-neutral-mid/40 bg-neutral-light dark:bg-neutral-dark/60 text-neutral-dark dark:text-neutral-white shadow-sm focus:border-primary focus:ring-primary" />
+                    <x-input-error :messages="$errors->get('org_phone')" class="mt-2" />
+                </div>
+                <div>
+                    <label for="org_city" class="block text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">Municipio <span class="text-xs font-normal text-neutral-dark/60 dark:text-neutral-300">(opcional)</span></label>
+                    <input id="org_city" name="org_city" type="text" value="{{ old('org_city') }}" class="mt-1 block w-full rounded-md border-neutral-mid/40 bg-neutral-light dark:bg-neutral-dark/60 text-neutral-dark dark:text-neutral-white shadow-sm focus:border-primary focus:ring-primary" />
+                    <x-input-error :messages="$errors->get('org_city')" class="mt-2" />
+                </div>
+                <div>
+                    <label for="org_state" class="block text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">Departamento <span class="text-xs font-normal text-neutral-dark/60 dark:text-neutral-300">(opcional)</span></label>
+                    <input id="org_state" name="org_state" type="text" value="{{ old('org_state') }}" class="mt-1 block w-full rounded-md border-neutral-mid/40 bg-neutral-light dark:bg-neutral-dark/60 text-neutral-dark dark:text-neutral-white shadow-sm focus:border-primary focus:ring-primary" />
+                    <x-input-error :messages="$errors->get('org_state')" class="mt-2" />
+                </div>
+                <div class="md:col-span-2">
+                    <label for="org_country" class="block text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">País <span class="text-xs font-normal text-neutral-dark/60 dark:text-neutral-300">(opcional)</span></label>
+                    <input id="org_country" name="org_country" type="text" value="{{ old('org_country') }}" class="mt-1 block w-full rounded-md border-neutral-mid/40 bg-neutral-light dark:bg-neutral-dark/60 text-neutral-dark dark:text-neutral-white shadow-sm focus:border-primary focus:ring-primary" />
+                    <x-input-error :messages="$errors->get('org_country')" class="mt-2" />
+                </div>
+                <div class="md:col-span-2">
+                    <label for="org_description" class="block text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">Descripción <span class="text-xs font-normal text-neutral-dark/60 dark:text-neutral-300">(opcional)</span></label>
+                    <textarea id="org_description" name="org_description" rows="3" class="mt-1 block w-full rounded-md border-neutral-mid/40 bg-neutral-light dark:bg-neutral-dark/60 text-neutral-dark dark:text-neutral-white shadow-sm focus:border-primary focus:ring-primary" placeholder="Cuéntanos sobre tu organización">{{ old('org_description') }}</textarea>
+                    <x-input-error :messages="$errors->get('org_description')" class="mt-2" />
+                </div>
+            </div>
         </div>
 
         <div class="flex items-center justify-between pt-2">
@@ -106,6 +158,20 @@
                     }
                 });
             });
+        })();
+        // Mostrar/ocultar campos de organización
+        (function(){
+            const cb = document.getElementById('is_organization');
+            const block = document.getElementById('org-fields');
+            const sync = () => {
+                const isOrg = !!cb.checked;
+                block?.classList.toggle('hidden', !isOrg);
+            };
+            if (cb) {
+                cb.addEventListener('change', sync);
+                // init
+                sync();
+            }
         })();
     </script>
 </x-guest-layout>
