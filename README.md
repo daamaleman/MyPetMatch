@@ -3,7 +3,7 @@
 # 🐾 MyPetMatch  
 
 <div align="center">
-  <img src="public/storage/Logo_Completo_MyPetMatch.png" alt="MyPetMatch Logo" width="160"/>
+  <img src="./Logo_Completo_MyPetMatch.png" alt="MyPetMatch Logo" width="160"/>
 </div>
 
 [![Hackathon](https://img.shields.io/badge/Hackathon-Nicaragua%202025-0099A8.svg)](#)
