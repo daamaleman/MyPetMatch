@@ -10,10 +10,10 @@
 	<style>html{scroll-behavior:smooth}</style>
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
-<body class="font-poppins bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white">
+<body class="font-poppins bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white min-h-screen flex flex-col">
 	@include('partials.header')
 
-	<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+	<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
 		<div class="flex items-start justify-between gap-4">
 			<div>
 				<h1 class="text-2xl md:text-3xl font-semibold">{{ $pet->name }}</h1>
@@ -108,5 +108,6 @@
 			</aside>
 		</div>
 	</div>
+@include('partials.footer')
 </body>
 </html>

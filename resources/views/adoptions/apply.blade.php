@@ -8,10 +8,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="font-poppins bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white">
+<body class="font-poppins bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white min-h-screen flex flex-col">
     @include('partials.header')
 
-    <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
         @php
             $adIncomplete = $adopterIncomplete ?? false;
             $missing = $adopterMissingLabels ?? [];
@@ -23,7 +23,9 @@
                 @if($pet->cover_image)
                     <img src="{{ asset('storage/'.$pet->cover_image) }}" alt="{{ $pet->name }}" class="w-24 h-24 object-cover rounded-xl border border-neutral-mid/40">
                 @endif
-                <div>
+                @include('partials.footer')
+
+                <script>
                     <p class="text-sm text-neutral-dark/70">Estás iniciando una solicitud para</p>
                     <h2 class="text-xl font-semibold">{{ $pet->name }}</h2>
                 </div>
@@ -31,8 +33,20 @@
             <p class="mt-4 text-sm text-neutral-dark/80">Próximamente aquí podrás completar tu solicitud. Por ahora, esta es una vista de placeholder.</p>
             <div class="mt-6 flex items-center gap-3">
                 <a class="btn btn-primary" href="{{ route('pets.details', $pet->id) }}">Volver a detalles</a>
-                <a class="btn btn-secondary" href="{{ route('adoptions.index') }}">Ver más mascotas</a>
-            </div>
+                            if(missing && missing.length){
+                                html += '<ul style="text-align:left;margin-top:8px">' + missing.map(m => `<li>• ${m}</li>`).join('') + '</ul>';
+                            }
+                            Swal.fire({
+                                title: 'Perfil de adoptante incompleto',
+                                html,
+                                icon: 'warning',
+                                confirmButtonText: 'Ir a mi perfil',
+                                confirmButtonColor: '#05706C',
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                            }).then(() => {
+                                window.location.href = "{{ route('profile.edit', ['from'=>'adoption','require_adopter'=>1]) }}#adoptante";
+                            });
         </div>
     </main>
 

@@ -59,6 +59,8 @@
 		</section>
 	</main>
 
+	@include('partials.footer')
+
 	<script>
 		// Forzar modo claro en esta vista
 		document.documentElement.classList.remove('dark');

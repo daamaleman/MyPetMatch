@@ -10,19 +10,22 @@
 	<style>html{scroll-behavior:smooth}</style>
 	<link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=2" />
 </head>
-<body class="font-poppins bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white">
+<body class="font-poppins bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white min-h-screen flex flex-col">
 	@include('partials.header')
 
-	<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-		<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-			<div>
-				<h1 class="text-2xl md:text-3xl font-semibold">Organizaciones de rescate</h1>
-				<p class="text-sm text-neutral-dark/70 dark:text-neutral-300">Explora refugios y rescatistas. Filtra por nombre y ubicación.</p>
+	<main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex-1">
+		<!-- Encabezado de sección -->
+		<section class="pt-6 pb-2">
+			<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+				<div>
+					<h1 class="text-2xl md:text-3xl font-semibold">Organizaciones de rescate</h1>
+					<p class="mt-1 text-sm text-neutral-dark/70 dark:text-neutral-300">Explora refugios y rescatistas. Filtra por nombre y ubicación.</p>
+				</div>
 			</div>
-		</div>
+		</section>
 
-		<!-- Filtros (estilo similar al de adoptions/index) -->
-		<section id="filtros" class="mt-6">
+		<!-- Filtros (alineados con adoptions/index) -->
+		<section id="filtros" class="pt-2 pb-0">
 			<div class="rounded-2xl border border-neutral-mid/30 bg-white p-3">
 				<form method="GET" action="{{ route('orgs.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-2">
 					<label class="sr-only" for="q">Buscar</label>
@@ -74,42 +77,57 @@
 			</div>
 		</section>
 
-		<!-- Listado -->
-		<section class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-			@forelse($orgs as $org)
-				<div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark shadow-card p-4 flex flex-col transition hover:-translate-y-0.5 hover:shadow-lg">
-					<div class="flex items-center justify-between">
-						<h3 class="font-semibold text-lg tracking-tight">
-							<a href="{{ route('orgs.details', $org) }}" class="hover:underline">{{ $org->name }}</a>
-						</h3>
-						@if(property_exists($org, 'pets_count') && $org->pets_count)
-							<span class="badge badge-secondary">{{ $org->pets_count }} mascotas</span>
-						@endif
-					</div>
-					<p class="mt-1 text-sm text-neutral-dark/70">
-						@php
-							$loc = collect([
-								$org->city ?? null,
-								$org->state ?? null,
-								$org->country ?? null,
-							])->filter()->implode(', ');
-						@endphp
-						{{ $loc ?: 'Ubicación no especificada' }}
-					</p>
-					@if(!empty($org->description))
-						<p class="mt-2 text-sm line-clamp-2 text-neutral-dark/80">{{ Str::limit($org->description, 120) }}</p>
-					@endif
-					<div class="mt-4 pt-4 border-t border-neutral-mid/30 flex items-center justify-between">
-						<a href="{{ route('orgs.details', $org) }}" class="text-sm hover:text-primary">Ver detalles</a>
-						<a href="{{ route('orgs.details', $org) }}#mascotas" class="btn btn-primary text-sm">Ver mascotas</a>
-					</div>
-				</div>
-			@empty
-				<div class="col-span-full text-sm text-neutral-dark/70">No se encontraron organizaciones con esos filtros.</div>
-			@endforelse
-		</section>
+		@php $total = method_exists($orgs, 'total') ? $orgs->total() : $orgs->count(); @endphp
 
-		<div class="mt-6">{{ $orgs->links() }}</div>
+		<!-- Resultados -->
+		<section class="py-4">
+			<div class="flex items-center justify-between gap-3 text-sm text-neutral-dark/70 mb-3">
+				<div>
+					<span class="font-medium text-neutral-dark">{{ $total }}</span> organizaciones encontradas
+				</div>
+				<!-- Espacio reservado para futuro ordenado/alternar vista -->
+				<div class="hidden md:flex items-center gap-2">
+					<!-- Placeholder para ordenado -->
+				</div>
+			</div>
+
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+				@forelse($orgs as $org)
+					<div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark shadow-card p-4 flex flex-col transition hover:-translate-y-0.5 hover:shadow-lg">
+						<div class="flex items-center justify-between">
+							<h3 class="font-semibold text-lg tracking-tight">
+								<a href="{{ route('orgs.details', $org) }}" class="hover:underline">{{ $org->name }}</a>
+							</h3>
+							@if(property_exists($org, 'pets_count') && $org->pets_count)
+								<span class="badge badge-secondary">{{ $org->pets_count }} mascotas</span>
+							@endif
+						</div>
+						<p class="mt-1 text-sm text-neutral-dark/70">
+							@php
+								$loc = collect([
+									$org->city ?? null,
+									$org->state ?? null,
+									$org->country ?? null,
+								])->filter()->implode(', ');
+							@endphp
+							{{ $loc ?: 'Ubicación no especificada' }}
+						</p>
+						@if(!empty($org->description))
+							<p class="mt-2 text-sm line-clamp-2 text-neutral-dark/80">{{ Str::limit($org->description, 120) }}</p>
+						@endif
+						<div class="mt-4 pt-4 border-t border-neutral-mid/30 flex items-center justify-between">
+							<a href="{{ route('orgs.details', $org) }}" class="text-sm hover:text-primary">Ver detalles</a>
+							<a href="{{ route('orgs.details', $org) }}#mascotas" class="btn btn-primary text-sm">Ver mascotas</a>
+						</div>
+					</div>
+				@empty
+					<div class="col-span-full text-sm text-neutral-dark/70">No se encontraron organizaciones con esos filtros.</div>
+				@endforelse
+			</div>
+
+			<div class="mt-6">{{ $orgs->links() }}</div>
+		</section>
 	</main>
+	@include('partials.footer')
 </body>
 </html>

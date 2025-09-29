@@ -14,7 +14,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-poppins antialiased bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white">
-        <div class="min-h-screen">
+        <div class="min-h-screen flex flex-col">
             @include('layouts.navigation')
 
             {{-- Page Heading --}}
@@ -27,9 +27,10 @@
             @endif
 
             {{-- Page Content --}}
-            <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
+            <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex-1">
                 {{ $slot }}
             </main>
+            @include('partials.footer')
         </div>
     </body>
 </html>

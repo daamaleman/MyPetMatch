@@ -11,10 +11,10 @@
 	<style>html{scroll-behavior:smooth}</style>
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
-<body class="font-poppins bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white">
+<body class="font-poppins bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white min-h-screen flex flex-col">
 	@include('partials.header')
 
-	<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+	<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
 		<div class="flex items-center justify-between">
 			<h1 class="text-2xl font-semibold">Nueva Mascota</h1>
 			<a href="{{ route('orgs.pets.index') }}" class="text-sm hover:text-primary">Volver a la lista</a>
@@ -129,6 +129,8 @@
 			</div>
 		</form>
 	</div>
+
+	@include('partials.footer')
 
 	<script>
 		(function(){

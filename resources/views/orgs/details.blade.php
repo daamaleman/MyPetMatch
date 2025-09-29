@@ -10,10 +10,10 @@
 	<style>html{scroll-behavior:smooth}</style>
 	<link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=2" />
 </head>
-<body class="font-poppins bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white">
+<body class="font-poppins bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white min-h-screen flex flex-col">
 	@include('partials.header')
 
-	<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+	<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
 		<div class="flex items-center justify-between">
 			<div>
 				<h1 class="text-2xl md:text-3xl font-semibold">{{ $org->name }}</h1>
@@ -87,5 +87,6 @@
 			</section>
 		@endif
 	</main>
+	@include('partials.footer')
 </body>
 </html>

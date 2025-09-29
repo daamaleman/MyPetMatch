@@ -123,5 +123,6 @@
 			<button class="btn btn-danger" type="submit">Eliminar</button>
 		</form>
 	</div>
+@include('partials.footer')
 </body>
 </html>

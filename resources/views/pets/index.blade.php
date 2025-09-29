@@ -189,6 +189,8 @@
 		</section>
 	</main>
 
+	@include('partials.footer')
+
 	<script>
 		// Mantener el comportamiento suave de scroll y estilos similares a adoptions/index
 		document.documentElement.classList.add('supports-[backdrop-filter]');

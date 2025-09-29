@@ -100,7 +100,7 @@
     {{-- Subnavegación contextual para paneles --}}
     @auth
     @php $role = auth()->user()->role ?? null; @endphp
-    @if(request()->routeIs('orgs.*') && ($role === 'organizacion' || $role === 'admin'))
+    @if(($role === 'organizacion' || $role === 'admin') && (request()->routeIs('orgs.*') || request()->routeIs('adoptions.*')))
     <div class="border-t border-neutral-mid/30 bg-white/70 dark:bg-neutral-dark/60">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center gap-6 text-sm">
             <a href="{{ route('orgs.dashboard') }}" class="{{ request()->routeIs('orgs.dashboard') ? 'text-primary font-medium' : 'hover:text-primary' }}">Resumen</a>
