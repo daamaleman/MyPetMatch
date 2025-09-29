@@ -6,6 +6,7 @@
 		<title>Panel de Organización — {{ config('app.name', 'MyPetMatch') }}</title>
 		@vite(['resources/css/app.css', 'resources/js/app.js'])
 		<link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=2" />
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 		<style>
 			@keyframes fadeUp { from { opacity: 0; transform: translateY(12px);} to { opacity: 1; transform: translateY(0);} }
 			.animate-fade-up { animation: fadeUp .55s ease-out both; }
@@ -136,6 +137,35 @@
 			</div>
 		</main>
 
+		<script>
+			// Mostrar alerta si el perfil de la organización está incompleto
+			window.addEventListener('DOMContentLoaded', function () {
+				const incomplete = {{ ($orgProfileIncomplete ?? false) ? 'true' : 'false' }};
+				const missing = {!! json_encode($orgMissingLabels ?? []) !!};
+				if (incomplete) {
+					let html = '';
+					if (missing && missing.length) {
+						html += '<ul style="text-align:left">' + missing.map(m => `<li>• ${m}</li>`).join('') + '</ul>';
+					} else {
+						html = '<p>Completa tu perfil para que los adoptantes puedan contactarte.</p>';
+					}
+					Swal.fire({
+						title: 'Completa tu perfil de organización',
+						html,
+						icon: 'warning',
+						showCancelButton: true,
+						confirmButtonText: 'Ir a mi perfil',
+						cancelButtonText: 'Luego',
+						confirmButtonColor: '#05706C',
+						cancelButtonColor: '#C9D1D9',
+					}).then((result) => {
+						if (result.isConfirmed) {
+							window.location.href = "{{ route('profile.edit') }}" + '#organizacion';
+						}
+					});
+				}
+			});
+		</script>
 		<footer class="mt-auto border-t border-neutral-mid/30 bg-white/80 dark:bg-neutral-dark/70 backdrop-blur supports-[backdrop-filter]:bg-white/50">
 			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-center text-xs text-neutral-dark/80 dark:text-neutral-300">
 				© {{ date('Y') }} MyPetMatch · Panel de Organizaciones

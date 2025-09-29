@@ -76,7 +76,26 @@ Route::middleware('auth')->group(function () {
         // Placeholder: iniciar solicitud de adopción (a implementar)
         Route::get('/apply/{pet}', function (\App\Models\Pet $pet) {
             abort_unless($pet->status === 'published', 404);
-            return view('adoptions.apply', compact('pet'));
+            $user = auth()->user();
+            $ap = optional($user->adopterProfile);
+            $required = ['phone','address_line1','city','state','country','zip'];
+            $labels = [
+                'phone' => 'Teléfono',
+                'address_line1' => 'Dirección',
+                'city' => 'Municipio',
+                'state' => 'Departamento',
+                'country' => 'País',
+                'zip' => 'Código Postal',
+            ];
+            $missing = [];
+            foreach ($required as $f) {
+                $v = $ap->{$f} ?? null;
+                if (blank($v)) { $missing[] = $f; }
+            }
+            $adopterIncomplete = count($missing) > 0;
+            $adopterMissingLabels = array_map(fn($f) => $labels[$f] ?? ucfirst($f), $missing);
+
+            return view('adoptions.apply', compact('pet', 'adopterIncomplete', 'adopterMissingLabels'));
         })->name('apply');
 
         // Detalle de solicitud (placeholder aún)

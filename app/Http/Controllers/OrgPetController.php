@@ -15,8 +15,8 @@ class OrgPetController extends Controller
      */
     public function index(Request $request)
     {
-        $user = Auth::user();
-        $orgId = optional($user->organization)->id;
+    $user = Auth::user();
+    $orgId = optional($user->organization)->id;
 
         // Filtros entrantes (replicando los de adoptions/index)
         $q = $request->string('q')->toString();
@@ -27,6 +27,9 @@ class OrgPetController extends Controller
         $query = Pet::query();
         if ($orgId) {
             $query->where('organization_id', $orgId);
+        } else {
+            // Sin organización asignada: no mostrar mascotas
+            $query->whereRaw('1=0');
         }
 
         if ($q !== '') {
@@ -48,15 +51,19 @@ class OrgPetController extends Controller
         }
 
         // Opciones dinámicas limitadas a la organización del usuario
-        $baseOptions = Pet::query()->where('organization_id', $orgId);
-        $speciesOptions = (clone $baseOptions)
-            ->whereNotNull('species')
-            ->where('species', '!=', '')
-            ->select('species')->distinct()->orderBy('species')->pluck('species');
-        $sizeOptions = (clone $baseOptions)
-            ->whereNotNull('size')
-            ->where('size', '!=', '')
-            ->select('size')->distinct()->orderBy('size')->pluck('size');
+        $speciesOptions = collect();
+        $sizeOptions = collect();
+        if ($orgId) {
+            $baseOptions = Pet::query()->where('organization_id', $orgId);
+            $speciesOptions = (clone $baseOptions)
+                ->whereNotNull('species')
+                ->where('species', '!=', '')
+                ->select('species')->distinct()->orderBy('species')->pluck('species');
+            $sizeOptions = (clone $baseOptions)
+                ->whereNotNull('size')
+                ->where('size', '!=', '')
+                ->select('size')->distinct()->orderBy('size')->pluck('size');
+        }
 
         $pets = $query->latest()->paginate(12);
         $pets->appends($request->query());
@@ -69,7 +76,29 @@ class OrgPetController extends Controller
      */
     public function create()
     {
-    return view('pets.create');
+        $user = Auth::user();
+        $org = optional($user->organization);
+        $required = ['email','phone','city','state','country'];
+        $labels = [
+            'email' => 'Email',
+            'phone' => 'Teléfono',
+            'city' => 'Municipio',
+            'state' => 'Departamento',
+            'country' => 'País',
+        ];
+        $missing = [];
+        if (!$org || !$org->id) {
+            $missing = $required; // sin organización también cuenta como incompleto
+        } else {
+            foreach ($required as $f) {
+                $v = $org->{$f} ?? null;
+                if (blank($v)) { $missing[] = $f; }
+            }
+        }
+        $orgProfileIncomplete = (!$org || !$org->id) || count($missing) > 0;
+        $orgMissingLabels = array_map(fn($f) => $labels[$f] ?? ucfirst($f), $missing);
+
+        return view('pets.create', compact('orgProfileIncomplete','orgMissingLabels'));
     }
 
     /**
@@ -77,6 +106,34 @@ class OrgPetController extends Controller
      */
     public function store(Request $request)
     {
+        // Guardar solo si el perfil de la organización está completo
+        $user = Auth::user();
+        $org = optional($user->organization);
+        $required = ['email','phone','city','state','country'];
+        $labels = [
+            'email' => 'Email',
+            'phone' => 'Teléfono',
+            'city' => 'Municipio',
+            'state' => 'Departamento',
+            'country' => 'País',
+        ];
+        $missing = [];
+        if (!$org || !$org->id) {
+            $missing = $required;
+        } else {
+            foreach ($required as $f) {
+                $v = $org->{$f} ?? null;
+                if (blank($v)) { $missing[] = $f; }
+            }
+        }
+        if ((!$org || !$org->id) || count($missing) > 0) {
+            $orgMissingLabels = array_map(fn($f) => $labels[$f] ?? ucfirst($f), $missing);
+            return redirect()
+                ->route('orgs.pets.create')
+                ->with('org_incomplete', true)
+                ->with('org_missing_labels', $orgMissingLabels);
+        }
+
         $data = $request->validate([
             'name' => ['required','string','max:255'],
             'species' => ['nullable','string','max:120'],
@@ -89,18 +146,8 @@ class OrgPetController extends Controller
             'cover_image' => ['nullable','image','max:4096'],
         ]);
 
-        // Asignar a la organización del usuario; crear placeholder si no existe
-        $orgId = optional(Auth::user()->organization)->id;
-        if (!$orgId) {
-            $org = Organization::firstOrCreate(['name' => 'Mi Organización']);
-            $orgId = $org->id;
-            // Opcional: vincular al usuario si está desasociado
-            $user = Auth::user();
-            if ($user && !$user->organization_id) {
-                \App\Models\User::whereKey($user->id)->update(['organization_id' => $orgId]);
-            }
-        }
-        $data['organization_id'] = $orgId;
+        // Asignar a la organización del usuario (ya validada como existente y completa)
+        $data['organization_id'] = $org->id;
 
         if ($request->hasFile('cover_image')) {
             $data['cover_image'] = $request->file('cover_image')->store('pets', 'public');

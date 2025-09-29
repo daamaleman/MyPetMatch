@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdoptionApplication;
+use App\Models\Organization;
 use App\Models\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,7 @@ class OrgDashboardController extends Controller
         $user = Auth::user();
 
         // Try to resolve organization IDs for the user if relation exists; else null (global fallback)
-        $orgIds = null;
+    $orgIds = null;
         if ($user) {
             // Prefer single organization() relation if defined
             if (method_exists($user, 'organization')) {
@@ -44,24 +45,36 @@ class OrgDashboardController extends Controller
             }
         }
 
+        // Resolve single organization (principal) to assess profile completeness
+        $primaryOrg = null;
+        if ($orgIds && count($orgIds) > 0) {
+            $primaryOrg = Organization::query()->find($orgIds[0]);
+        }
+
         $petQuery = Pet::query();
         $appQuery = AdoptionApplication::query();
 
-        // Scope by organization if possible
-        if ($orgIds && Schema::hasColumn('pets', 'organization_id')) {
+        // Scope by organization strictly; if none is linked, return no results
+        if ($orgIds && count($orgIds) > 0 && Schema::hasColumn('pets', 'organization_id')) {
             $petQuery->whereIn('organization_id', $orgIds);
+        } else {
+            // Force empty set
+            $petQuery->whereRaw('1=0');
         }
-        if ($orgIds && Schema::hasColumn('adoption_applications', 'organization_id')) {
+        if ($orgIds && count($orgIds) > 0 && Schema::hasColumn('adoption_applications', 'organization_id')) {
             $appQuery->whereIn('organization_id', $orgIds);
-        } elseif ($orgIds && Schema::hasColumn('adoption_applications', 'pet_id') && Schema::hasColumn('pets', 'organization_id')) {
+        } elseif ($orgIds && count($orgIds) > 0 && Schema::hasColumn('adoption_applications', 'pet_id') && Schema::hasColumn('pets', 'organization_id')) {
             // Attempt to scope via pet relation if it exists
             try {
                 $appQuery->whereHas('pet', function ($q) use ($orgIds) {
                     $q->whereIn('organization_id', $orgIds);
                 });
             } catch (\Throwable $e) {
-                // If relation not defined yet, fall back to global
+                // If relation not defined yet, fall back to empty
+                $appQuery->whereRaw('1=0');
             }
+        } else {
+            $appQuery->whereRaw('1=0');
         }
 
         $stats = [
@@ -90,6 +103,36 @@ class OrgDashboardController extends Controller
                 ->toArray();
         }
 
-        return view('orgs.dashboard', compact('user', 'stats', 'recentPets', 'recentApps', 'statusBreakdown'));
+        // Compute organization profile completeness
+        $requiredFields = ['email','phone','city','state','country'];
+        $missingFields = [];
+        if ($primaryOrg) {
+            foreach ($requiredFields as $field) {
+                $value = $primaryOrg->{$field} ?? null;
+                if (blank($value)) {
+                    $missingFields[] = $field;
+                }
+            }
+        } else {
+            // If user has no organization linked yet, consider it incomplete
+            $missingFields = $requiredFields;
+        }
+        $labels = [
+            'email' => 'Email',
+            'phone' => 'Teléfono',
+            'city' => 'Municipio',
+            'state' => 'Departamento',
+            'country' => 'País',
+            'description' => 'Descripción',
+        ];
+        $orgMissingLabels = array_map(function($f) use ($labels) {
+            return $labels[$f] ?? ucfirst($f);
+        }, $missingFields);
+        $orgProfileIncomplete = !$primaryOrg || count($missingFields) > 0;
+
+        return view('orgs.dashboard', compact(
+            'user', 'stats', 'recentPets', 'recentApps', 'statusBreakdown',
+            'primaryOrg', 'orgProfileIncomplete', 'orgMissingLabels'
+        ));
     }
 }

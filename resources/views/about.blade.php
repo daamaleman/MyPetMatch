@@ -161,7 +161,7 @@
                                 </div>
                                 <div>
                                     <h4 class="font-semibold">Catálogo Interactivo con Filtros Inteligentes</h4>
-                                    <p class="text-sm text-neutral-dark/70 dark:text-neutral-300">Perfiles completos, búsqueda por especie, tamaño, ciudad y más.</p>
+                                    <p class="text-sm text-neutral-dark/70 dark:text-neutral-300">Perfiles completos, búsqueda por especie, tamaño, municipio y más.</p>
                                 </div>
                             </div>
                             <div class="bg-white dark:bg-neutral-dark/70 rounded-xl border border-neutral-mid/30 p-4 flex items-start gap-3 transition hover:-translate-y-0.5 hover:shadow-lg">

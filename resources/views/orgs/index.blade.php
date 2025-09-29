@@ -27,10 +27,10 @@
 				<form method="GET" action="{{ route('orgs.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-2">
 					<label class="sr-only" for="q">Buscar</label>
 					<input id="q" type="text" name="q" value="{{ $q ?? '' }}" placeholder="Nombre de la organización" class="h-9 px-3 py-2 text-sm rounded-xl border-neutral-mid/40 bg-neutral-light" />
-					<label class="sr-only" for="city">Ciudad</label>
-					<input id="city" type="text" name="city" value="{{ $city ?? '' }}" placeholder="Ciudad" class="h-9 px-3 py-2 text-sm rounded-xl border-neutral-mid/40 bg-neutral-light" />
-					<label class="sr-only" for="state">Estado/Provincia</label>
-					<input id="state" type="text" name="state" value="{{ $state ?? '' }}" placeholder="Estado/Provincia" class="h-9 px-3 py-2 text-sm rounded-xl border-neutral-mid/40 bg-neutral-light" />
+					<label class="sr-only" for="city">Municipio</label>
+					<input id="city" type="text" name="city" value="{{ $city ?? '' }}" placeholder="Municipio" class="h-9 px-3 py-2 text-sm rounded-xl border-neutral-mid/40 bg-neutral-light" />
+					<label class="sr-only" for="state">Departamento</label>
+					<input id="state" type="text" name="state" value="{{ $state ?? '' }}" placeholder="Departamento" class="h-9 px-3 py-2 text-sm rounded-xl border-neutral-mid/40 bg-neutral-light" />
 					<label class="sr-only" for="country">País</label>
 					<input id="country" type="text" name="country" value="{{ $country ?? '' }}" placeholder="País" class="h-9 px-3 py-2 text-sm rounded-xl border-neutral-mid/40 bg-neutral-light" />
 					<div class="md:col-span-4 flex gap-2">
@@ -52,13 +52,13 @@
 					@if(!empty($city))
 						@php $urlNoCity = route('orgs.index', collect($params)->except(['city'])->toArray()); @endphp
 						<a href="{{ $urlNoCity }}" class="inline-flex items-center gap-1 px-2 py-1 rounded-xl border border-neutral-mid/40 bg-neutral-mid/10 hover:bg-neutral-mid/20">
-							<span>Ciudad: {{ $city }}</span><span aria-hidden="true">✕</span>
+							<span>Municipio: {{ $city }}</span><span aria-hidden="true">✕</span>
 						</a>
 					@endif
 					@if(!empty($state))
 						@php $urlNoState = route('orgs.index', collect($params)->except(['state'])->toArray()); @endphp
 						<a href="{{ $urlNoState }}" class="inline-flex items-center gap-1 px-2 py-1 rounded-xl border border-neutral-mid/40 bg-neutral-mid/10 hover:bg-neutral-mid/20">
-							<span>Estado/Prov.: {{ $state }}</span><span aria-hidden="true">✕</span>
+							<span>Departamento: {{ $state }}</span><span aria-hidden="true">✕</span>
 						</a>
 					@endif
 					@if(!empty($country))

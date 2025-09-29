@@ -71,7 +71,7 @@
                                 <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
                             </div>
                             <h3 class="mt-3 font-semibold text-lg">Busca</h3>
-                            <p class="mt-1 text-sm text-neutral-dark/70 dark:text-neutral-300">Explora mascotas con filtros inteligentes por especie, tamaño y ciudad.</p>
+                            <p class="mt-1 text-sm text-neutral-dark/70 dark:text-neutral-300">Explora mascotas con filtros inteligentes por especie, tamaño y municipio.</p>
                         </div>
                         <!-- Paso 3 -->
                         <div class="bg-white dark:bg-neutral-dark/70 rounded-2xl shadow-card p-6 border border-neutral-mid/30 animate-fade-up transition hover:-translate-y-0.5 hover:shadow-lg" style="animation-delay:.1s">
@@ -131,7 +131,7 @@
                                 </div>
                                 <div>
                                     <h4 class="font-semibold">Catálogo Interactivo con Filtros Inteligentes</h4>
-                                    <p class="text-sm text-neutral-dark/70 dark:text-neutral-300">Perfiles completos, fotos, historia y filtros por especie, tamaño, ciudad y más.</p>
+                                    <p class="text-sm text-neutral-dark/70 dark:text-neutral-300">Perfiles completos, fotos, historia y filtros por especie, tamaño, municipio y más.</p>
                                 </div>
                             </div>
                             <!-- Adopción digital -->

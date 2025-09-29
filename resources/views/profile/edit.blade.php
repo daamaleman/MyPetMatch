@@ -41,7 +41,7 @@
 
                 <!-- Adoptante: datos de contacto y dirección -->
                 @if(in_array($role, ['adoptante','admin']))
-                <div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6">
+                <div id="adoptante" class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6">
                     <h2 class="text-lg font-semibold">Datos de Adoptante</h2>
                     <p class="text-sm text-neutral-dark/70">Estos datos ayudarán a las organizaciones a contactarte.</p>
                     @if($requireAdopter)
@@ -75,12 +75,12 @@
                                 @error('address_line2')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
-                                <label class="text-sm" for="city">Ciudad @if($requireAdopter)<span class="text-danger">*</span>@endif</label>
+                                <label class="text-sm" for="city">Municipio @if($requireAdopter)<span class="text-danger">*</span>@endif</label>
                                 <input id="city" name="city" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('city', $ap->city) }}" @if($requireAdopter) required @endif>
                                 @error('city')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
-                                <label class="text-sm" for="state">Estado/Provincia @if($requireAdopter)<span class="text-danger">*</span>@endif</label>
+                                <label class="text-sm" for="state">Departamento @if($requireAdopter)<span class="text-danger">*</span>@endif</label>
                                 <input id="state" name="state" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('state', $ap->state) }}" @if($requireAdopter) required @endif>
                                 @error('state')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
@@ -97,14 +97,9 @@
                 </div>
                 @endif
 
-                <!-- Seguridad -->
-                <div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6">
-                    @include('profile.partials.update-password-form')
-                </div>
-
                 <!-- Organización: perfil extendido -->
                 @if(in_array($role, ['organizacion','admin']))
-                <div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6">
+                <div id="organizacion" class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6">
                     <h2 class="text-lg font-semibold">Perfil de Organización</h2>
                     <p class="text-sm text-neutral-dark/70">Datos públicos de tu organización que verán los adoptantes.</p>
                     @php $org = optional(auth()->user()->organization); @endphp
@@ -133,12 +128,12 @@
                                 @error('organization_phone')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
-                                <label class="text-sm" for="organization_city">Ciudad</label>
+                                <label class="text-sm" for="organization_city">Municipio</label>
                                 <input id="organization_city" name="organization_city" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('organization_city', $org->city) }}">
                                 @error('organization_city')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
-                                <label class="text-sm" for="organization_state">Estado/Provincia</label>
+                                <label class="text-sm" for="organization_state">Departamento</label>
                                 <input id="organization_state" name="organization_state" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('organization_state', $org->state) }}">
                                 @error('organization_state')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
@@ -155,6 +150,11 @@
                 </div>
                 @endif
 
+                <!-- Seguridad (movida después de Adoptante y Organización) -->
+                <div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6">
+                    @include('profile.partials.update-password-form')
+                </div>
+
                 <!-- Eliminar cuenta -->
                 <div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6">
                     <div class="max-w-xl">
@@ -166,8 +166,8 @@
             <!-- Columna lateral -->
             <aside class="space-y-6">
                 <div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6">
-                    <h3 class="font-semibold">Tu rol</h3>
-                    <p class="text-sm mt-1">{{ ucfirst($role ?? 'usuario') }}</p>
+                    <h3 class="font-semibold">Tu cuenta y permisos</h3>
+                    <p class="text-sm mt-1">Rol actual: {{ ucfirst($role ?? 'usuario') }}</p>
                     @if($role==='adoptante')
                         <p class="text-sm text-neutral-dark/70 mt-2">Como adoptante puedes explorar mascotas y enviar solicitudes.</p>
                         <a href="{{ route('adoptions.browse') }}" class="btn btn-primary mt-3">Ver mascotas disponibles</a>
@@ -187,6 +187,10 @@
                         <li>Publica mascotas en estado “Publicado” para que aparezcan en Adoptar.</li>
                         @endif
                     </ul>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <a href="{{ route('features') }}" class="btn btn-secondary">Cómo funciona</a>
+                        <a href="{{ route('contact') }}" class="btn">Contacto</a>
+                    </div>
                 </div>
             </aside>
         </div>
