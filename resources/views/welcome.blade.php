@@ -26,8 +26,8 @@
                             Encuentra tu compañero peludo ideal hoy. Descubramos juntos tu mascota perfecta.
                         </p>
                         <div class="mt-7 flex items-center gap-3">
-                            <a href="{{ url('/pets') }}" class="btn btn-primary">Empezar Búsqueda →</a>
-                            <a href="#como-funciona" class="btn btn-secondary">Conoce Más</a>
+                            <a href="{{ url('/features') }}" class="btn btn-primary">Empezar Búsqueda →</a>
+                            <a href="{{ url('/about') }}" class="btn btn-secondary">Conoce Más</a>
                         </div>
                         <div class="mt-6 text-xs text-neutral-dark/70 dark:text-neutral-300">
                             <div class="flex items-center gap-3">

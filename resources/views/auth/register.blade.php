@@ -1,62 +1,111 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
+    <div class="text-center mb-6">
+        <span class="badge badge-primary">Bienvenido</span>
+        <h1 class="text-2xl md:text-3xl font-semibold mt-2 tracking-tight">
+            Crea tu <span class="text-primary">cuenta</span>
+        </h1>
+        <p class="text-sm text-neutral-dark/70 dark:text-neutral-300 mt-2">Únete a MyPetMatch y encuentra tu compañero ideal.</p>
+    </div>
+
+    <form method="POST" action="{{ route('register') }}" class="space-y-4">
         @csrf
 
         <!-- Name -->
         <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+            <label for="name" class="block text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">Nombre</label>
+            <input id="name" class="mt-1 block w-full rounded-md border-neutral-mid/40 bg-neutral-light dark:bg-neutral-dark/60 text-neutral-dark dark:text-neutral-white shadow-sm focus:border-primary focus:ring-primary" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name" />
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
 
         <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
+        <div>
+            <label for="email" class="block text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">Correo electrónico</label>
+            <input id="email" class="mt-1 block w-full rounded-md border-neutral-mid/40 bg-neutral-light dark:bg-neutral-dark/60 text-neutral-dark dark:text-neutral-white shadow-sm focus:border-primary focus:ring-primary" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
+        <div>
+            <label for="password" class="block text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">Contraseña</label>
+            <div class="relative">
+                <input id="password" class="mt-1 block w-full rounded-md border-neutral-mid/40 bg-neutral-light dark:bg-neutral-dark/60 text-neutral-dark dark:text-neutral-white shadow-sm focus:border-primary focus:ring-primary pr-10" type="password" name="password" required autocomplete="new-password" />
+                <button type="button" class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl border border-neutral-mid/40 hover:bg-neutral-mid/10 text-neutral-dark/70 dark:text-neutral-300" aria-label="Mostrar contraseña" aria-pressed="false" data-toggle-password data-target="password">
+                    <svg data-eye xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
+                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <svg data-eye-off xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4 hidden">
+                        <path d="M3 3l18 18" />
+                        <path d="M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42" />
+                        <path d="M9.88 5.06A10.94 10.94 0 0112 5c7 0 11 7 11 7a18.92 18.92 0 01-5.06 5.94" />
+                        <path d="M6.61 6.61A18.9 18.9 0 001 12s4 7 11 7a10.9 10.9 0 005.39-1.39" />
+                    </svg>
+                </button>
+            </div>
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
         <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
+        <div>
+            <label for="password_confirmation" class="block text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">Confirmar contraseña</label>
+            <div class="relative">
+                <input id="password_confirmation" class="mt-1 block w-full rounded-md border-neutral-mid/40 bg-neutral-light dark:bg-neutral-dark/60 text-neutral-dark dark:text-neutral-white shadow-sm focus:border-primary focus:ring-primary pr-10" type="password" name="password_confirmation" required autocomplete="new-password" />
+                <button type="button" class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl border border-neutral-mid/40 hover:bg-neutral-mid/10 text-neutral-dark/70 dark:text-neutral-300" aria-label="Mostrar contraseña" aria-pressed="false" data-toggle-password data-target="password_confirmation">
+                    <svg data-eye xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
+                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <svg data-eye-off xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4 hidden">
+                        <path d="M3 3l18 18" />
+                        <path d="M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42" />
+                        <path d="M9.88 5.06A10.94 10.94 0 0112 5c7 0 11 7 11 7a18.92 18.92 0 01-5.06 5.94" />
+                        <path d="M6.61 6.61A18.9 18.9 0 001 12s4 7 11 7a10.9 10.9 0 005.39-1.39" />
+                    </svg>
+                </button>
+            </div>
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
         <!-- Role -->
-        <div class="mt-4">
-            <x-input-label for="role" :value="__('Rol')" />
-            <select id="role" name="role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary">
+        <div>
+            <label for="role" class="block text-sm font-medium text-neutral-dark/90 dark:text-neutral-200">Rol</label>
+            <select id="role" name="role" class="mt-1 block w-full rounded-md border-neutral-mid/40 bg-neutral-light dark:bg-neutral-dark/60 text-neutral-dark dark:text-neutral-white shadow-sm focus:border-primary focus:ring-primary">
                 <option value="adoptante" {{ old('role')==='adoptante' ? 'selected' : '' }}>Adoptante</option>
                 <option value="organizacion" {{ old('role')==='organizacion' ? 'selected' : '' }}>Organización</option>
             </select>
             <x-input-error :messages="$errors->get('role')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
+        <div class="flex items-center justify-between pt-2">
+            <a class="text-sm text-primary hover:underline" href="{{ route('login') }}">
+                ¿Ya tienes cuenta?
             </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
+            <button type="submit" class="btn btn-primary px-6 py-2">
+                Registrarse
+            </button>
         </div>
     </form>
+    <script>
+        // Toggle password visibility for inputs with [data-toggle-password]
+        (function() {
+            const toggles = document.querySelectorAll('[data-toggle-password]');
+            toggles.forEach(btn => {
+                const targetId = btn.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                if (!input) return;
+                btn.addEventListener('click', () => {
+                    const show = input.type === 'password';
+                    input.type = show ? 'text' : 'password';
+                    btn.setAttribute('aria-pressed', String(show));
+                    btn.setAttribute('aria-label', show ? 'Ocultar contraseña' : 'Mostrar contraseña');
+                    const eye = btn.querySelector('[data-eye]');
+                    const eyeOff = btn.querySelector('[data-eye-off]');
+                    if (eye && eyeOff) {
+                        eye.classList.toggle('hidden', !show);
+                        eyeOff.classList.toggle('hidden', show);
+                    }
+                });
+            });
+        })();
+    </script>
 </x-guest-layout>
