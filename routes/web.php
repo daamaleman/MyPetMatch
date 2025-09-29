@@ -27,6 +27,7 @@ Route::get('/about', function () {
     return view('about');
 })->name('about');
 Route::view('/features', 'features')->name('features');
+Route::view('/contact', 'contact')->name('contact');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -83,4 +84,4 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
