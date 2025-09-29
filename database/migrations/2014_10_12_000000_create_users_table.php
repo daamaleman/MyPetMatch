@@ -19,6 +19,10 @@ return new class extends Migration
             $table->string('password');
             // Rol de usuario: adoptante (default), organizacion, admin
             $table->enum('role', ['adoptante', 'organizacion', 'admin'])->default('adoptante');
+            // Relación (opcional) con organizaciones
+            $table->unsignedBigInteger('organization_id')->nullable();
+            $table->index('organization_id');
+            $table->index('role');
             $table->rememberToken();
             $table->timestamps();
         });

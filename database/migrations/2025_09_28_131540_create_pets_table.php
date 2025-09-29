@@ -20,6 +20,10 @@ return new class extends Migration
             $table->string('species')->nullable();
             $table->string('breed')->nullable();
             $table->string('age')->nullable();
+            // Campos normalizados agregados desde el inicio
+            $table->unsignedSmallInteger('age_years')->nullable();
+            $table->decimal('weight_kg', 5, 1)->nullable();
+            $table->unsignedSmallInteger('height_cm')->nullable();
             $table->string('size')->nullable();
             $table->enum('sex', ['male','female','unknown'])->nullable();
             $table->text('story')->nullable();

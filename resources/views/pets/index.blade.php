@@ -154,7 +154,18 @@
 										<span class="badge {{ $statusClass }} capitalize">{{ $pet->status }}</span>
 									@endif
 									@if(!empty($pet->age))
-										<span class="badge badge-primary">Edad: {{ $pet->age }}</span>
+										<span class="badge badge-primary">Edad: {{ is_numeric($pet->age ?? null) ? ($pet->age.' años') : $pet->age }}</span>
+									@endif
+									@php
+										$w=null;$h=null;$story=(string)($pet->story??'');
+										if(preg_match('/^\s*Peso:\s*([0-9]+(?:\.[0-9])?)\s*kg/im',$story,$m)){ $w=$m[1]; }
+										if(preg_match('/^\s*Altura:\s*([0-9]+)\s*cm/im',$story,$m2)){ $h=$m2[1]; }
+									@endphp
+									@if($w !== null)
+										<span class="badge">{{ $w }} kg</span>
+									@endif
+									@if($h !== null)
+										<span class="badge">{{ $h }} cm</span>
 									@endif
 									@if(!empty($pet->sex))
 										<span class="badge badge-secondary capitalize">{{ $pet->sex }}</span>

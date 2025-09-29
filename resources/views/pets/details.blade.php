@@ -17,9 +17,21 @@
 		<div class="flex items-start justify-between gap-4">
 			<div>
 				<h1 class="text-2xl md:text-3xl font-semibold">{{ $pet->name }}</h1>
-				<p class="text-sm text-neutral-dark/70 mt-1">
-					{{ $pet->species }} @if($pet->breed) • {{ $pet->breed }} @endif @if($pet->size) • {{ $pet->size }} @endif @if($pet->sex) • {{ $pet->sex === 'male' ? 'Macho' : ($pet->sex === 'female' ? 'Hembra' : 'Desconocido') }} @endif
-				</p>
+				@php
+					$infoBits = [];
+					if (!empty($pet->species)) { $infoBits[] = $pet->species; }
+					if (!empty($pet->breed)) { $infoBits[] = $pet->breed; }
+					if (!empty($pet->size)) { $infoBits[] = $pet->size; }
+					if (is_numeric($pet->age ?? null)) { $infoBits[] = ($pet->age.' años'); }
+					if (!empty($pet->sex)) { $infoBits[] = ($pet->sex === 'male' ? 'Macho' : ($pet->sex === 'female' ? 'Hembra' : 'Desconocido')); }
+					// Attempt to extract weight from story
+					$weightFromStory = null; $heightFromStory = null;
+					if (preg_match('/^\s*Peso:\s*([0-9]+(?:\.[0-9])?)\s*kg/im', (string)($pet->story ?? ''), $m)) { $weightFromStory = $m[1]; }
+					if (preg_match('/^\s*Altura:\s*([0-9]+)\s*cm/im', (string)($pet->story ?? ''), $m2)) { $heightFromStory = $m2[1]; }
+					if ($weightFromStory !== null) { $infoBits[] = ($weightFromStory.' kg'); }
+					if ($heightFromStory !== null) { $infoBits[] = ($heightFromStory.' cm'); }
+				@endphp
+				<p class="text-sm text-neutral-dark/70 mt-1">{{ implode(' • ', $infoBits) }}</p>
 			</div>
 			<div class="flex items-center gap-3">
 				@auth
@@ -54,7 +66,7 @@
 							<span class="badge badge-secondary capitalize">{{ $pet->status === 'published' ? 'Publicado' : ($pet->status === 'draft' ? 'Borrador' : 'Archivado') }}</span>
 						@endif
 						@if($pet->age)
-							<span class="badge badge-primary">Edad: {{ $pet->age }}</span>
+							<span class="badge badge-primary">Edad: {{ is_numeric($pet->age ?? null) ? ($pet->age.' años') : $pet->age }}</span>
 						@endif
 					</div>
 				</div>

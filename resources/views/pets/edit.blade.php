@@ -34,19 +34,45 @@
 				</div>
 				<div>
 					<label class="text-sm">Especie</label>
-					<input name="species" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('species', $pet->species) }}">
+					@php $speciesOpts = $speciesOptions ?? ['Perro','Gato','Conejo','Hámster','Cobaya','Chinchilla','Pez','Canario','Periquito','Ninfa','Cacatúa','Tortuga','Iguana','Erizo','Hurón','Gallina','Pavo','Caballo','Otro']; @endphp
+					<input name="species" list="species-list" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('species', $pet->species) }}" placeholder="Ej: Perro" />
+					<datalist id="species-list">
+						@foreach($speciesOpts as $opt)
+							<option value="{{ $opt }}"></option>
+						@endforeach
+					</datalist>
 				</div>
 				<div>
 					<label class="text-sm">Raza</label>
 					<input name="breed" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('breed', $pet->breed) }}">
 				</div>
 				<div>
-					<label class="text-sm">Edad</label>
-					<input name="age" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('age', $pet->age) }}">
+					<label class="text-sm">Edad (años)</label>
+					<input name="age" type="number" min="0" max="100" step="1" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('age', is_numeric($pet->age ?? null) ? $pet->age : null) }}">
+					<p class="text-xs text-neutral-dark/60 mt-1">Ingresa un número entero en años.</p>
 				</div>
 				<div>
 					<label class="text-sm">Tamaño</label>
-					<input name="size" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('size', $pet->size) }}">
+					<select name="size" class="mt-1 block w-full rounded-xl border-neutral-mid/40">
+						<option value="">—</option>
+						@php $sizeOpts = $sizeOptions ?? ['Pequeño','Mediano','Grande','Extra grande','Desconocido']; @endphp
+						@foreach($sizeOpts as $opt)
+							@php $sel = old('size', $pet->size) === $opt; @endphp
+							<option value="{{ $opt }}" @selected($sel)>{{ $opt }}</option>
+						@endforeach
+					</select>
+				</div>
+				<div>
+					<label class="text-sm">Peso (kg)</label>
+					@php $wPrefill = old('weight_kg', $weightKg ?? null); @endphp
+					<input name="weight_kg" type="number" min="0" max="999.9" step="0.1" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ $wPrefill }}">
+					<p class="text-xs text-neutral-dark/60 mt-1">Ejemplo: 12.5</p>
+				</div>
+				<div>
+					<label class="text-sm">Altura (cm)</label>
+					@php $hPrefill = old('height_cm', $heightCm ?? null); @endphp
+					<input name="height_cm" type="number" min="0" max="300" step="1" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ $hPrefill }}">
+					<p class="text-xs text-neutral-dark/60 mt-1">Ejemplo: 45</p>
 				</div>
 				<div>
 					<label class="text-sm">Sexo</label>
@@ -61,7 +87,7 @@
 
 			<div>
 				<label class="text-sm">Historia</label>
-				<textarea name="story" rows="5" class="mt-1 block w-full rounded-xl border-neutral-mid/40">{{ old('story', $pet->story) }}</textarea>
+				<textarea name="story" rows="5" class="mt-1 block w-full rounded-xl border-neutral-mid/40">{{ old('story', isset($storyNoMeta) ? $storyNoMeta : $pet->story) }}</textarea>
 			</div>
 
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">

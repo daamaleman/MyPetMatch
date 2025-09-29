@@ -56,19 +56,40 @@
 				</div>
 				<div>
 					<label class="text-sm">Especie</label>
-					<input name="species" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('species') }}">
+					<input name="species" list="species-list" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('species') }}" placeholder="Ej: Perro" />
+					<datalist id="species-list">
+						@foreach(($speciesOptions ?? []) as $opt)
+							<option value="{{ $opt }}"></option>
+						@endforeach
+					</datalist>
 				</div>
 				<div>
 					<label class="text-sm">Raza</label>
 					<input name="breed" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('breed') }}">
 				</div>
 				<div>
-					<label class="text-sm">Edad</label>
-					<input name="age" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('age') }}">
+					<label class="text-sm">Edad (años)</label>
+					<input name="age" type="number" min="0" max="100" step="1" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('age') }}">
+					<p class="text-xs text-neutral-dark/60 mt-1">Ingresa un número entero en años.</p>
 				</div>
 				<div>
 					<label class="text-sm">Tamaño</label>
-					<input name="size" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('size') }}">
+					<select name="size" class="mt-1 block w-full rounded-xl border-neutral-mid/40">
+						<option value="">—</option>
+						@foreach(($sizeOptions ?? []) as $opt)
+							<option value="{{ $opt }}" @selected(old('size')===$opt)>{{ $opt }}</option>
+						@endforeach
+					</select>
+				</div>
+				<div>
+					<label class="text-sm">Peso (kg)</label>
+					<input name="weight_kg" type="number" min="0" max="999.9" step="0.1" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('weight_kg') }}">
+					<p class="text-xs text-neutral-dark/60 mt-1">Ejemplo: 12.5</p>
+				</div>
+				<div>
+					<label class="text-sm">Altura (cm)</label>
+					<input name="height_cm" type="number" min="0" max="300" step="1" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('height_cm') }}">
+					<p class="text-xs text-neutral-dark/60 mt-1">Ejemplo: 45</p>
 				</div>
 				<div>
 					<label class="text-sm">Sexo</label>

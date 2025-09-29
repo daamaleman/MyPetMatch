@@ -7,6 +7,7 @@ use App\Models\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 
 class OrgPetController extends Controller
 {
@@ -98,7 +99,13 @@ class OrgPetController extends Controller
         $orgProfileIncomplete = (!$org || !$org->id) || count($missing) > 0;
         $orgMissingLabels = array_map(fn($f) => $labels[$f] ?? ucfirst($f), $missing);
 
-        return view('pets.create', compact('orgProfileIncomplete','orgMissingLabels'));
+        // Opciones normalizadas de especie (sugerencias) y tamaño
+        $speciesOptions = [
+            'Perro','Gato','Conejo','Hámster','Cobaya','Chinchilla','Pez','Canario','Periquito','Ninfa','Cacatúa','Tortuga','Iguana','Erizo','Hurón','Gallina','Pavo','Caballo','Otro'
+        ];
+        $sizeOptions = ['Pequeño','Mediano','Grande','Extra grande','Desconocido'];
+
+        return view('pets.create', compact('orgProfileIncomplete','orgMissingLabels','speciesOptions','sizeOptions'));
     }
 
     /**
@@ -134,12 +141,16 @@ class OrgPetController extends Controller
                 ->with('org_missing_labels', $orgMissingLabels);
         }
 
+        $sizeAllowed = ['Pequeño','Mediano','Grande','Extra grande','Desconocido'];
         $data = $request->validate([
             'name' => ['required','string','max:255'],
-            'species' => ['nullable','string','max:120'],
+            // Permitir escribir especie libremente, con autocompletado en la UI
+            'species' => ['nullable','string','max:50'],
             'breed' => ['nullable','string','max:120'],
-            'age' => ['nullable','string','max:60'],
-            'size' => ['nullable','string','max:60'],
+            'age' => ['nullable','integer','min:0','max:100'],
+            'size' => ['nullable','in:'.implode(',', $sizeAllowed)],
+            'weight_kg' => ['nullable','numeric','min:0','max:999.9'],
+            'height_cm' => ['nullable','numeric','min:0','max:300'],
             'sex' => ['nullable','in:male,female,unknown'],
             'story' => ['nullable','string'],
             'status' => ['nullable','in:draft,published,archived'],
@@ -151,6 +162,31 @@ class OrgPetController extends Controller
 
         if ($request->hasFile('cover_image')) {
             $data['cover_image'] = $request->file('cover_image')->store('pets', 'public');
+        }
+
+        // Normalizar edad a cadena (años)
+        if (array_key_exists('age', $data) && $data['age'] !== null && $data['age'] !== '') {
+            $data['age'] = (string) intval($data['age']);
+        }
+        // Fusionar metadata (peso/altura) en la historia como primeras líneas
+        $story = $data['story'] ?? '';
+        $weight = $data['weight_kg'] ?? null;
+        $height = $data['height_cm'] ?? null;
+        $data['story'] = $this->mergeMetaIntoStory($story, $weight, $height);
+
+        // Si existen columnas reales, guardarlas; si no, limpiar del payload
+        if (Schema::hasColumn('pets','weight_kg')) {
+            // Mantener el valor tal cual para persistir en columna
+        } else {
+            unset($data['weight_kg']);
+        }
+        if (Schema::hasColumn('pets','height_cm')) {
+            // Mantener
+        } else {
+            unset($data['height_cm']);
+        }
+        if (Schema::hasColumn('pets','age_years')) {
+            $data['age_years'] = isset($request['age']) && $request['age'] !== null && $request['age'] !== '' ? intval($request['age']) : null;
         }
 
         $pet = Pet::create($data);
@@ -182,7 +218,13 @@ class OrgPetController extends Controller
         if ($orgId && $pet->organization_id !== $orgId) {
             abort(403);
         }
-    return view('pets.edit', compact('pet'));
+        // Opciones normalizadas y extracción de peso/altura desde la historia
+        $speciesOptions = [
+            'Perro','Gato','Conejo','Hámster','Cobaya','Chinchilla','Pez','Canario','Periquito','Ninfa','Cacatúa','Tortuga','Iguana','Erizo','Hurón','Gallina','Pavo','Caballo','Otro'
+        ];
+        $sizeOptions = ['Pequeño','Mediano','Grande','Extra grande','Desconocido'];
+        [$weightKg, $heightCm, $storyNoMeta] = $this->extractMetaAndCleanStory($pet->story);
+        return view('pets.edit', compact('pet','speciesOptions','sizeOptions','weightKg','heightCm','storyNoMeta'));
     }
 
     /**
@@ -195,12 +237,15 @@ class OrgPetController extends Controller
         if ($orgId && $pet->organization_id !== $orgId) {
             abort(403);
         }
+        $sizeAllowed = ['Pequeño','Mediano','Grande','Extra grande','Desconocido'];
         $data = $request->validate([
             'name' => ['required','string','max:255'],
-            'species' => ['nullable','string','max:120'],
+            'species' => ['nullable','string','max:50'],
             'breed' => ['nullable','string','max:120'],
-            'age' => ['nullable','string','max:60'],
-            'size' => ['nullable','string','max:60'],
+            'age' => ['nullable','integer','min:0','max:100'],
+            'size' => ['nullable','in:'.implode(',', $sizeAllowed)],
+            'weight_kg' => ['nullable','numeric','min:0','max:999.9'],
+            'height_cm' => ['nullable','numeric','min:0','max:300'],
             'sex' => ['nullable','in:male,female,unknown'],
             'story' => ['nullable','string'],
             'status' => ['nullable','in:draft,published,archived'],
@@ -214,9 +259,54 @@ class OrgPetController extends Controller
             $data['cover_image'] = $request->file('cover_image')->store('pets', 'public');
         }
 
+        // Normalizar edad (cadena) y fusionar metadata (peso/altura) en historia
+        if (array_key_exists('age', $data) && $data['age'] !== null && $data['age'] !== '') {
+            $data['age'] = (string) intval($data['age']);
+        }
+        $story = $data['story'] ?? '';
+        $weight = $data['weight_kg'] ?? null;
+        $height = $data['height_cm'] ?? null;
+        $data['story'] = $this->mergeMetaIntoStory($story, $weight, $height);
+
+        if (Schema::hasColumn('pets','weight_kg')) { /* keep */ } else { unset($data['weight_kg']); }
+        if (Schema::hasColumn('pets','height_cm')) { /* keep */ } else { unset($data['height_cm']); }
+        if (Schema::hasColumn('pets','age_years')) {
+            $data['age_years'] = isset($request['age']) && $request['age'] !== null && $request['age'] !== '' ? intval($request['age']) : null;
+        }
+
         $pet->update($data);
 
         return back()->with('status', 'Mascota actualizada');
+    }
+
+    private function mergeMetaIntoStory(?string $story, $weightKg, $heightCm): string
+    {
+        $story = (string)($story ?? '');
+        // Remove existing Peso:/Altura: lines
+        $clean = preg_replace('/^\s*(Peso|Altura):\s*[^\n]*\n?/mi', '', $story);
+        $clean = ltrim($clean, "\n");
+        $lines = [];
+        if ($weightKg !== null && $weightKg !== '') {
+            $w = number_format((float)$weightKg, (fmod((float)$weightKg, 1.0) === 0.0 ? 0 : 1), '.', '');
+            $lines[] = "Peso: {$w} kg";
+        }
+        if ($heightCm !== null && $heightCm !== '') {
+            $h = (int) round((float)$heightCm);
+            $lines[] = "Altura: {$h} cm";
+        }
+        $prefix = $lines ? (implode("\n", $lines)."\n") : '';
+        return $prefix.$clean;
+    }
+
+    private function extractMetaAndCleanStory(?string $story): array
+    {
+        $story = (string)($story ?? '');
+        $weight = null; $height = null;
+        if (preg_match('/^\s*Peso:\s*([0-9]+(?:\.[0-9])?)\s*kg/im', $story, $m)) { $weight = $m[1]; }
+        if (preg_match('/^\s*Altura:\s*([0-9]+)\s*cm/im', $story, $m2)) { $height = $m2[1]; }
+        $clean = preg_replace('/^\s*(Peso|Altura):\s*[^\n]*\n?/mi', '', $story);
+        $clean = ltrim($clean, "\n");
+        return [$weight, $height, $clean];
     }
 
     /**

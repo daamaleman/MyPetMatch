@@ -10,7 +10,9 @@ class Pet extends Model
     use HasFactory;
 
     protected $fillable = [
-        'organization_id','name','species','breed','age','size','sex','story','cover_image','image_gallery','video_gallery','status'
+        'organization_id','name','species','breed','age','size','sex','story','cover_image','image_gallery','video_gallery','status',
+        // Opcionales si existen en BD (migración futura)
+        'age_years','weight_kg','height_cm'
     ];
 
     protected $casts = [
