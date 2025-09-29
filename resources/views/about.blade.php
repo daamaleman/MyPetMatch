@@ -33,8 +33,8 @@
                             MyPetMatch nace para facilitar adopciones responsables, transparentes y felices. Impulsamos refugios con herramientas modernas y damos a los adoptantes una experiencia clara y confiable.
                         </p>
                         <div class="mt-7 flex items-center gap-3">
-                            <a href="{{ url('/pets') }}" class="btn btn-primary">Explorar Mascotas</a>
-                            <a href="#mision" class="btn btn-secondary">Nuestra Misión</a>
+                            <a href="{{ route('adoptions.index') }}" class="btn btn-primary">Explorar Mascotas</a>
+                            <a href="#mision-vision" class="btn btn-secondary">Nuestra Misión</a>
                         </div>
                     </div>
                     <div class="relative animate-float">
