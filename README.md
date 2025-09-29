@@ -1,10 +1,10 @@
 <div align="center">
-
-# 🐾 MyPetMatch  
-
-<div align="center">
   <img src="./Logo_Completo_MyPetMatch.png" alt="MyPetMatch Logo" width="350"/>
 </div>
+
+##
+
+<div align="center">
 
 [![Hackathon](https://img.shields.io/badge/Hackathon-Nicaragua%202025-0099A8.svg)](#)
 [![Categoría](https://img.shields.io/badge/Categor%C3%ADa-Libre%20%E2%80%93%20Tem%C3%A1tica%20Social-05706c.svg)](#)
