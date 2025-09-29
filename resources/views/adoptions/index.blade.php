@@ -31,6 +31,14 @@
 	@include('partials.header')
 
 	<main class="flex-1">
+		<!-- Encabezado de sección -->
+		<section class="pt-6 pb-2">
+			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<h1 class="text-2xl md:text-3xl font-semibold tracking-tight">Mascotas disponibles para adopción</h1>
+				<p class="mt-1 text-sm text-neutral-dark/80">Explora, filtra y encuentra a tu próximo mejor amigo.</p>
+			</div>
+		</section>
+
 		<!-- HERO removed to prioritize pets grid -->
 
 		@php

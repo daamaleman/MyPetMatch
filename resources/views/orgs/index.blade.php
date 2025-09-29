@@ -21,41 +21,72 @@
 			</div>
 		</div>
 
-		<!-- Filtros -->
-		<form method="GET" action="{{ route('orgs.index') }}" class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-3">
-			<div>
-				<label class="text-xs">Buscar</label>
-				<input type="text" name="q" value="{{ $q ?? '' }}" placeholder="Nombre de la organización" class="mt-1 w-full rounded-xl border-neutral-mid/40" />
+		<!-- Filtros (estilo similar al de adoptions/index) -->
+		<section id="filtros" class="mt-6">
+			<div class="rounded-2xl border border-neutral-mid/30 bg-white p-3">
+				<form method="GET" action="{{ route('orgs.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-2">
+					<label class="sr-only" for="q">Buscar</label>
+					<input id="q" type="text" name="q" value="{{ $q ?? '' }}" placeholder="Nombre de la organización" class="h-9 px-3 py-2 text-sm rounded-xl border-neutral-mid/40 bg-neutral-light" />
+					<label class="sr-only" for="city">Ciudad</label>
+					<input id="city" type="text" name="city" value="{{ $city ?? '' }}" placeholder="Ciudad" class="h-9 px-3 py-2 text-sm rounded-xl border-neutral-mid/40 bg-neutral-light" />
+					<label class="sr-only" for="state">Estado/Provincia</label>
+					<input id="state" type="text" name="state" value="{{ $state ?? '' }}" placeholder="Estado/Provincia" class="h-9 px-3 py-2 text-sm rounded-xl border-neutral-mid/40 bg-neutral-light" />
+					<label class="sr-only" for="country">País</label>
+					<input id="country" type="text" name="country" value="{{ $country ?? '' }}" placeholder="País" class="h-9 px-3 py-2 text-sm rounded-xl border-neutral-mid/40 bg-neutral-light" />
+					<div class="md:col-span-4 flex gap-2">
+						<button class="btn btn-primary">Filtrar</button>
+						<a href="{{ route('orgs.index') }}" class="btn btn-secondary">Limpiar</a>
+					</div>
+				</form>
+
+				@php $params = request()->query(); @endphp
+				@if(($q ?? null) || ($city ?? null) || ($state ?? null) || ($country ?? null))
+				<div class="mt-3 flex flex-wrap items-center gap-2 text-sm">
+					<span class="text-neutral-dark/70">Filtros activos:</span>
+					@if(!empty($q))
+						@php $urlNoQ = route('orgs.index', collect($params)->except(['q'])->toArray()); @endphp
+						<a href="{{ $urlNoQ }}" class="inline-flex items-center gap-1 px-2 py-1 rounded-xl border border-neutral-mid/40 bg-neutral-mid/10 hover:bg-neutral-mid/20">
+							<span>Buscar: "{{ Str::limit($q, 24) }}"</span><span aria-hidden="true">✕</span>
+						</a>
+					@endif
+					@if(!empty($city))
+						@php $urlNoCity = route('orgs.index', collect($params)->except(['city'])->toArray()); @endphp
+						<a href="{{ $urlNoCity }}" class="inline-flex items-center gap-1 px-2 py-1 rounded-xl border border-neutral-mid/40 bg-neutral-mid/10 hover:bg-neutral-mid/20">
+							<span>Ciudad: {{ $city }}</span><span aria-hidden="true">✕</span>
+						</a>
+					@endif
+					@if(!empty($state))
+						@php $urlNoState = route('orgs.index', collect($params)->except(['state'])->toArray()); @endphp
+						<a href="{{ $urlNoState }}" class="inline-flex items-center gap-1 px-2 py-1 rounded-xl border border-neutral-mid/40 bg-neutral-mid/10 hover:bg-neutral-mid/20">
+							<span>Estado/Prov.: {{ $state }}</span><span aria-hidden="true">✕</span>
+						</a>
+					@endif
+					@if(!empty($country))
+						@php $urlNoCountry = route('orgs.index', collect($params)->except(['country'])->toArray()); @endphp
+						<a href="{{ $urlNoCountry }}" class="inline-flex items-center gap-1 px-2 py-1 rounded-xl border border-neutral-mid/40 bg-neutral-mid/10 hover:bg-neutral-mid/20">
+							<span>País: {{ $country }}</span><span aria-hidden="true">✕</span>
+						</a>
+					@endif
+
+					<a href="{{ route('orgs.index') }}" class="ms-2 text-primary hover:underline">Limpiar todo</a>
+				</div>
+				@endif
 			</div>
-			<div>
-				<label class="text-xs">Ciudad</label>
-				<input type="text" name="city" value="{{ $city ?? '' }}" class="mt-1 w-full rounded-xl border-neutral-mid/40" />
-			</div>
-			<div>
-				<label class="text-xs">Estado/Provincia</label>
-				<input type="text" name="state" value="{{ $state ?? '' }}" class="mt-1 w-full rounded-xl border-neutral-mid/40" />
-			</div>
-			<div>
-				<label class="text-xs">País</label>
-				<input type="text" name="country" value="{{ $country ?? '' }}" class="mt-1 w-full rounded-xl border-neutral-mid/40" />
-			</div>
-			<div class="md:col-span-4 pt-1">
-				<button class="btn btn-primary text-sm">Aplicar filtros</button>
-				<a href="{{ route('orgs.index') }}" class="ms-2 text-sm hover:text-primary">Limpiar</a>
-			</div>
-		</form>
+		</section>
 
 		<!-- Listado -->
 		<section class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 			@forelse($orgs as $org)
-				<a href="{{ route('orgs.details', $org) }}" class="block rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark hover:shadow-card transition p-4">
+				<div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark shadow-card p-4 flex flex-col transition hover:-translate-y-0.5 hover:shadow-lg">
 					<div class="flex items-center justify-between">
-						<p class="font-semibold">{{ $org->name }}</p>
+						<h3 class="font-semibold text-lg tracking-tight">
+							<a href="{{ route('orgs.details', $org) }}" class="hover:underline">{{ $org->name }}</a>
+						</h3>
 						@if(property_exists($org, 'pets_count') && $org->pets_count)
 							<span class="badge badge-secondary">{{ $org->pets_count }} mascotas</span>
 						@endif
 					</div>
-					<p class="mt-1 text-xs text-neutral-dark/70">
+					<p class="mt-1 text-sm text-neutral-dark/70">
 						@php
 							$loc = collect([
 								$org->city ?? null,
@@ -65,7 +96,14 @@
 						@endphp
 						{{ $loc ?: 'Ubicación no especificada' }}
 					</p>
-				</a>
+					@if(!empty($org->description))
+						<p class="mt-2 text-sm line-clamp-2 text-neutral-dark/80">{{ Str::limit($org->description, 120) }}</p>
+					@endif
+					<div class="mt-4 pt-4 border-t border-neutral-mid/30 flex items-center justify-between">
+						<a href="{{ route('orgs.details', $org) }}" class="text-sm hover:text-primary">Ver detalles</a>
+						<a href="{{ route('orgs.details', $org) }}#mascotas" class="btn btn-primary text-sm">Ver mascotas</a>
+					</div>
+				</div>
 			@empty
 				<div class="col-span-full text-sm text-neutral-dark/70">No se encontraron organizaciones con esos filtros.</div>
 			@endforelse

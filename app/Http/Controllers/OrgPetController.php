@@ -13,19 +13,55 @@ class OrgPetController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $orgId = optional($user->organization)->id;
+
+        // Filtros entrantes (replicando los de adoptions/index)
+        $q = $request->string('q')->toString();
+        $species = $request->string('species')->toString();
+        $size = $request->string('size')->toString();
+        $sex = $request->string('sex')->toString();
 
         $query = Pet::query();
         if ($orgId) {
             $query->where('organization_id', $orgId);
         }
 
-        $pets = $query->latest()->paginate(12);
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('breed', 'like', "%{$q}%")
+                    ->orWhere('species', 'like', "%{$q}%")
+                    ->orWhere('story', 'like', "%{$q}%");
+            });
+        }
+        if ($species !== '') {
+            $query->where('species', $species);
+        }
+        if ($size !== '') {
+            $query->where('size', $size);
+        }
+        if ($sex !== '') {
+            $query->where('sex', $sex);
+        }
 
-    return view('pets.index', compact('pets'));
+        // Opciones dinámicas limitadas a la organización del usuario
+        $baseOptions = Pet::query()->where('organization_id', $orgId);
+        $speciesOptions = (clone $baseOptions)
+            ->whereNotNull('species')
+            ->where('species', '!=', '')
+            ->select('species')->distinct()->orderBy('species')->pluck('species');
+        $sizeOptions = (clone $baseOptions)
+            ->whereNotNull('size')
+            ->where('size', '!=', '')
+            ->select('size')->distinct()->orderBy('size')->pluck('size');
+
+        $pets = $query->latest()->paginate(12);
+        $pets->appends($request->query());
+
+        return view('pets.index', compact('pets', 'q', 'species', 'size', 'sex', 'speciesOptions', 'sizeOptions'));
     }
 
     /**

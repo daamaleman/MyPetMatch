@@ -16,7 +16,7 @@
 	<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<div class="flex items-center justify-between">
 			<h1 class="text-2xl font-semibold">Nueva Mascota</h1>
-			<a href="{{ route('orgs.pets.index') }}" class="text-sm hover:text-primary">Volver</a>
+			<a href="{{ route('orgs.pets.index') }}" class="text-sm hover:text-primary">Volver a la lista</a>
 		</div>
 
 		<form class="mt-6 space-y-5" method="POST" action="{{ route('orgs.pets.store') }}" enctype="multipart/form-data">
@@ -75,8 +75,9 @@
 				</div>
 			</div>
 
-			<div class="pt-2">
-				<button class="btn btn-primary">Crear</button>
+			<div class="pt-2 flex items-center gap-3">
+				<button class="btn btn-primary" type="submit">Crear</button>
+				<a href="{{ route('orgs.pets.index') }}" class="text-sm hover:text-primary">Cancelar</a>
 			</div>
 		</form>
 	</div>

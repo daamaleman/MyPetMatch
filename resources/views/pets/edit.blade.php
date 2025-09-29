@@ -16,7 +16,7 @@
 	<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<div class="flex items-center justify-between">
 			<h1 class="text-2xl font-semibold">Editar Mascota</h1>
-			<a href="{{ route('orgs.pets.index') }}" class="text-sm hover:text-primary">Volver</a>
+			<a href="{{ route('orgs.pets.index') }}" class="text-sm hover:text-primary">Volver a la lista</a>
 		</div>
 
 		@if (session('status'))
@@ -85,14 +85,16 @@
 			</div>
 
 			<div class="pt-2 flex items-center gap-3">
-				<button class="btn btn-primary">Guardar</button>
+				<button class="btn btn-primary" type="submit">Guardar cambios</button>
 				<a href="{{ route('orgs.pets.show', $pet->id) }}" class="text-sm hover:text-primary">Ver</a>
-				<form action="{{ route('orgs.pets.destroy', $pet->id) }}" method="POST" onsubmit="return confirm('¿Eliminar esta mascota?')">
-					@csrf
-					@method('DELETE')
-					<button class="btn btn-danger">Eliminar</button>
-				</form>
+				<a href="{{ route('orgs.pets.index') }}" class="text-sm hover:text-primary">Cancelar</a>
 			</div>
+		</form>
+
+		<form action="{{ route('orgs.pets.destroy', $pet->id) }}" method="POST" onsubmit="return confirm('¿Eliminar esta mascota?')" class="mt-3">
+			@csrf
+			@method('DELETE')
+			<button class="btn btn-danger" type="submit">Eliminar</button>
 		</form>
 	</div>
 </body>
