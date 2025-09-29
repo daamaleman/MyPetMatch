@@ -33,7 +33,7 @@
                             Te acompañamos de punta a punta: desde descubrir a tu próximo compañero hasta completar una adopción responsable junto a refugios y rescatistas.
                         </p>
                         <div class="mt-7 flex items-center gap-3">
-                            <a href="{{ url('/pets') }}" class="btn btn-primary">Explorar Mascotas</a>
+                            <a href="{{ route('adoptions.index') }}" class="btn btn-primary">Explorar Mascotas</a>
                             <a href="#pasos" class="btn btn-secondary">Ver Pasos</a>
                         </div>
                     </div>
