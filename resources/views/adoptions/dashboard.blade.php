@@ -31,6 +31,15 @@
 				<p class="text-3xl font-semibold mt-1">0</p>
 			</div>
 		</div>
+
+		<!-- CTA: Ir a Adoptar -->
+		<div class="mt-8 rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+			<div>
+				<h2 class="text-lg font-semibold">¿Listo para adoptar?</h2>
+				<p class="text-sm text-neutral-dark/70 mt-1">Explora las mascotas disponibles y envía tu solicitud.</p>
+			</div>
+			<a href="{{ route('adoptions.browse') }}" class="btn btn-primary">Ver mascotas disponibles</a>
+		</div>
 	</main>
 	<script>document.documentElement.classList.add(localStorage.theme||'');</script>
 </body>
