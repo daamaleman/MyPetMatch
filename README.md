@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./Logo_Completo_MyPetMatch.png" alt="MyPetMatch Logo" width="350"/>
+  <img src="./Logo_Completo_MyPetMatch.png" alt="MyPetMatch Logo" width="450"/>
 </div>
 
 ##
