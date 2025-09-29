@@ -5,6 +5,7 @@ use App\Http\Controllers\OrgDashboardController;
 use App\Http\Controllers\OrgPetController;
 use App\Http\Controllers\OrgAdoptionApplicationController;
 use App\Http\Controllers\OrganizationDirectoryController;
+use App\Http\Controllers\PetController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,7 +34,15 @@ Route::get('/dashboard', function () {
 
 // Directorio público de organizaciones (visible para adoptantes y público)
 Route::get('/orgs', [OrganizationDirectoryController::class, 'index'])->name('orgs.index');
-Route::get('/orgs/{organization}', [OrganizationDirectoryController::class, 'show'])->name('orgs.details');
+Route::get('/orgs/{organization}', [OrganizationDirectoryController::class, 'show'])
+    ->whereNumber('organization')
+    ->name('orgs.details');
+
+// Detalle público de mascota (visible para adoptantes y público)
+Route::get('/pets/{pet}', [PetController::class, 'show'])->name('pets.details');
+
+// Listado público de mascotas disponibles para adopción
+Route::view('/adoptar', 'adoptions.index')->name('adoptions.browse');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -59,8 +68,18 @@ Route::middleware('auth')->group(function () {
     Route::prefix('adoptions')->as('adoptions.')->middleware('role:adoptante,admin')->group(function () {
         // Vistas ya existentes en resources/views/adoptions/*.blade.php (index, dashboard, details)
         Route::view('/', 'adoptions.dashboard')->name('dashboard');
+        // Listado de mascotas disponibles (index)
         Route::view('/mine', 'adoptions.index')->name('index');
-        Route::view('/{id}', 'adoptions.details')->name('details');
+        // Placeholder: iniciar solicitud de adopción (a implementar)
+        Route::get('/apply/{pet}', function (\App\Models\Pet $pet) {
+            abort_unless($pet->status === 'published', 404);
+            return view('adoptions.apply', compact('pet'));
+        })->name('apply');
+
+        // Detalle de solicitud (placeholder aún)
+        Route::view('/{id}', 'adoptions.details')
+            ->whereNumber('id')
+            ->name('details');
     });
 });
 

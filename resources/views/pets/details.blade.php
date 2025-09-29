@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Detalle Mascota — Mi Área</title>
+	<title>Detalle de Mascota</title>
 	@vite(['resources/css/app.css', 'resources/js/app.js'])
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 	<meta name="color-scheme" content="light dark">
@@ -17,8 +17,12 @@
 		<div class="flex items-center justify-between">
 			<h1 class="text-2xl font-semibold">{{ $pet->name }}</h1>
 			<div class="flex items-center gap-3">
-				<a href="{{ route('orgs.pets.edit', $pet->id) }}" class="btn btn-primary">Editar</a>
-				<a href="{{ route('orgs.pets.index') }}" class="text-sm hover:text-primary">Volver</a>
+				@auth
+					@if(auth()->user()->isOrganizacion() || auth()->user()->isAdmin())
+						<a href="{{ route('orgs.pets.edit', $pet->id) }}" class="btn btn-primary">Editar</a>
+						<a href="{{ route('orgs.pets.index') }}" class="text-sm hover:text-primary">Volver</a>
+					@endif
+				@endauth
 			</div>
 		</div>
 
@@ -32,7 +36,9 @@
 			</div>
 			<div class="space-y-3">
 				<div class="flex items-center gap-3">
-					<span class="badge badge-secondary">{{ $pet->status }}</span>
+					@if($pet->status)
+						<span class="badge badge-secondary">{{ $pet->status }}</span>
+					@endif
 					@if($pet->age) <span class="badge badge-primary">Edad: {{ $pet->age }}</span> @endif
 				</div>
 				<p class="text-sm text-neutral-dark/70">{{ $pet->species }} • {{ $pet->breed }} • {{ $pet->size }} • {{ $pet->sex }}</p>
@@ -42,6 +48,17 @@
 						<p class="mt-2 text-sm leading-6 text-neutral-dark/80">{{ $pet->story }}</p>
 					</div>
 				@endif
+				<div id="adoptar" class="mt-6">
+					@auth
+						@if(auth()->user()->isAdoptante() || auth()->user()->isAdmin())
+							<a href="{{ route('adoptions.apply', $pet->id) }}" class="btn btn-primary">Solicitar adopción</a>
+						@else
+							<p class="text-sm text-neutral-dark/70">Inicia sesión como adoptante para solicitar la adopción.</p>
+						@endif
+					@else
+						<a href="{{ route('login') }}" class="btn btn-primary">Inicia sesión para adoptar</a>
+					@endauth
+				</div>
 			</div>
 		</div>
 	</div>

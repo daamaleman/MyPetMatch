@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pet;
 use Illuminate\Http\Request;
 
 class PetController extends Controller
@@ -35,7 +36,13 @@ class PetController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // Mostrar detalles públicos de una mascota publicada
+        $pet = Pet::with('organization')
+            ->where('id', $id)
+            ->where('status', 'published')
+            ->firstOrFail();
+
+        return view('pets.details', compact('pet'));
     }
 
     /**
