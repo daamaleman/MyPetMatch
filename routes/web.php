@@ -47,6 +47,8 @@ Route::view('/adoptar', 'adoptions.index')->name('adoptions.browse');
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/organization', [ProfileController::class, 'updateOrganization'])->name('profile.organization.update');
+    Route::patch('/profile/adopter', [ProfileController::class, 'updateAdopter'])->name('profile.adopter.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Dashboard y recursos de Organizaciones
