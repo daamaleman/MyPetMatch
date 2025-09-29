@@ -8,6 +8,7 @@
             <a href="/" class="{{ request()->is('/') ? 'text-primary font-medium' : 'hover:text-primary' }}">Inicio</a>
             <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'text-primary font-medium' : 'hover:text-primary' }}">Nosotros</a>
             <a href="{{ route('features') }}" class="{{ request()->routeIs('features') ? 'text-primary font-medium' : 'hover:text-primary' }}">Cómo Funciona</a>
+            <a href="{{ route('orgs.index') }}" class="{{ request()->routeIs('orgs.index') ? 'text-primary font-medium' : 'hover:text-primary' }}">Organizaciones</a>
             <a href="#contacto" class="hover:text-primary">Contacto</a>
         </nav>
         <div class="flex items-center gap-3">

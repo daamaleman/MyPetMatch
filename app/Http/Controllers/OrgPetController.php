@@ -25,7 +25,7 @@ class OrgPetController extends Controller
 
         $pets = $query->latest()->paginate(12);
 
-        return view('orgs.index', compact('pets'));
+    return view('pets.index', compact('pets'));
     }
 
     /**
@@ -33,7 +33,7 @@ class OrgPetController extends Controller
      */
     public function create()
     {
-        return view('orgs.create');
+    return view('pets.create');
     }
 
     /**
@@ -86,7 +86,7 @@ class OrgPetController extends Controller
         if ($orgId && $pet->organization_id !== $orgId) {
             abort(403);
         }
-        return view('orgs.details', compact('pet'));
+    return view('pets.details', compact('pet'));
     }
 
     /**
@@ -99,7 +99,7 @@ class OrgPetController extends Controller
         if ($orgId && $pet->organization_id !== $orgId) {
             abort(403);
         }
-        return view('orgs.edit', compact('pet'));
+    return view('pets.edit', compact('pet'));
     }
 
     /**

@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OrgDashboardController;
 use App\Http\Controllers\OrgPetController;
 use App\Http\Controllers\OrgAdoptionApplicationController;
+use App\Http\Controllers\OrganizationDirectoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,6 +31,10 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Directorio público de organizaciones (visible para adoptantes y público)
+Route::get('/orgs', [OrganizationDirectoryController::class, 'index'])->name('orgs.index');
+Route::get('/orgs/{organization}', [OrganizationDirectoryController::class, 'show'])->name('orgs.details');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -37,7 +42,7 @@ Route::middleware('auth')->group(function () {
 
     // Dashboard y recursos de Organizaciones
     Route::prefix('orgs')->as('orgs.')->middleware('role:organizacion,admin')->group(function () {
-        Route::get('/', [OrgDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [OrgDashboardController::class, 'index'])->name('dashboard');
 
         // Mascotas de la organización
         Route::resource('pets', OrgPetController::class)->parameters([

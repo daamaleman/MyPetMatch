@@ -3,41 +3,58 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Detalle Mascota — Panel</title>
+	<title>{{ $org->name }} — Organización</title>
 	@vite(['resources/css/app.css', 'resources/js/app.js'])
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+	<meta name="color-scheme" content="light dark">
+	<style>html{scroll-behavior:smooth}</style>
+	<link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=2" />
 </head>
 <body class="font-poppins bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white">
-    @include('partials.header')
-	<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+	@include('partials.header')
+
+	<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<div class="flex items-center justify-between">
-			<h1 class="text-2xl font-semibold">{{ $pet->name }}</h1>
-			<div class="flex items-center gap-3">
-				<a href="{{ route('orgs.pets.edit', $pet->id) }}" class="btn btn-secondary">Editar</a>
-				<a href="{{ route('orgs.pets.index') }}" class="text-sm text-primary">Volver</a>
+			<div>
+				<h1 class="text-2xl md:text-3xl font-semibold">{{ $org->name }}</h1>
+				<p class="text-sm text-neutral-dark/70 mt-1">
+					@php
+						$loc = collect([$org->city ?? null, $org->state ?? null, $org->country ?? null])->filter()->implode(', ');
+					@endphp
+					{{ $loc ?: 'Ubicación no especificada' }}
+				</p>
 			</div>
+			<a href="{{ route('orgs.index') }}" class="text-sm hover:text-primary">Volver a organizaciones</a>
 		</div>
 
-		<div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-			<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-3">
-				@if($pet->cover_image)
-					<img src="{{ asset('storage/'.$pet->cover_image) }}" alt="{{ $pet->name }}" class="w-full h-80 object-cover rounded-xl">
-				@else
-					<div class="w-full h-80 rounded-xl bg-neutral-mid/30 flex items-center justify-center text-sm text-neutral-dark/70">Sin imagen</div>
-				@endif
+		<section class="mt-6 rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-5">
+			<h2 class="text-lg font-semibold">Sobre la organización</h2>
+			<p class="mt-2 text-sm text-neutral-dark/80">
+				Información de ejemplo. Puedes extender el modelo con descripción, contacto, redes, etc.
+			</p>
+			<div class="mt-4 text-sm">
+				<span class="badge badge-primary">Mascotas publicadas: {{ $org->pets_count ?? ($org->pets?->count() ?? 0) }}</span>
 			</div>
-			<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-6 space-y-2">
-				<p><span class="font-medium">Especie:</span> {{ $pet->species ?: '—' }}</p>
-				<p><span class="font-medium">Raza:</span> {{ $pet->breed ?: '—' }}</p>
-				<p><span class="font-medium">Edad:</span> {{ $pet->age ?: '—' }}</p>
-				<p><span class="font-medium">Tamaño:</span> {{ $pet->size ?: '—' }}</p>
-				<p><span class="font-medium">Sexo:</span> {{ $pet->sex ?: '—' }}</p>
-				<p><span class="font-medium">Estado:</span> <span class="badge badge-secondary">{{ $pet->status }}</span></p>
-				<div class="pt-3">
-					<p class="font-medium">Historia</p>
-					<p class="text-sm text-neutral-dark/80 mt-1 whitespace-pre-line">{{ $pet->story ?: '—' }}</p>
+		</section>
+
+		@if($org->pets && $org->pets->count())
+			<section class="mt-8">
+				<h2 class="text-lg font-semibold">Mascotas recientes</h2>
+				<div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+					@foreach($org->pets as $pet)
+						<div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark overflow-hidden">
+							@if($pet->cover_image)
+								<img src="{{ asset('storage/'.$pet->cover_image) }}" alt="{{ $pet->name }}" class="w-full h-40 object-cover">
+							@endif
+							<div class="p-4">
+								<p class="font-medium">{{ $pet->name }}</p>
+								<p class="text-xs text-neutral-dark/70 mt-1">{{ $pet->species }} • {{ $pet->breed }}</p>
+							</div>
+						</div>
+					@endforeach
 				</div>
-			</div>
-		</div>
-	</div>
+			</section>
+		@endif
+	</main>
 </body>
 </html>
