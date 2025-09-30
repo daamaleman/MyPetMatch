@@ -173,7 +173,7 @@
 					<div class="rounded-2xl border border-neutral-mid/30 bg-white shadow-card overflow-hidden flex flex-col transition hover:-translate-y-0.5 hover:shadow-lg">
 						<a href="{{ route('pets.details', $pet->id) }}" class="block">
 							@if($pet->cover_image)
-							<img src="{{ asset('storage/'.$pet->cover_image) }}" alt="{{ $pet->name }}" class="w-full h-48 object-cover">
+							<img src="{{ \Illuminate\Support\Facades\Storage::url($pet->cover_image) }}" alt="{{ $pet->name }}" class="w-full h-48 object-cover">
 							@else
 							<div class="w-full h-48 flex items-center justify-center text-sm text-neutral-dark/70">Sin imagen</div>
 							@endif

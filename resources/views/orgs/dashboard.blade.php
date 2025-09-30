@@ -17,6 +17,11 @@
 
 		<main class="flex-1 py-8">
 			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<!-- Guard para datos dinámicos (evita inyectar Blade directo en JS) -->
+				<div id="org-guard"
+				     data-incomplete="{{ ($orgProfileIncomplete ?? false) ? '1' : '0' }}"
+				     data-missing="{{ htmlspecialchars(json_encode($orgMissingLabels ?? []), ENT_QUOTES, 'UTF-8') }}"
+				     class="hidden"></div>
 				<!-- Heading -->
 				<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
 					<div>
@@ -25,7 +30,7 @@
 					</div>
 					<div class="flex flex-wrap items-center gap-2">
 						<a href="{{ route('orgs.pets.create') }}" class="btn btn-primary text-sm">+ Nueva Mascota</a>
-						<a href="{{ route('orgs.adoptions.index') }}" class="btn btn-secondary text-sm">Ver Solicitudes</a>
+						<a href="{{ route('submissions.index') }}" class="btn btn-secondary text-sm">Ver Solicitudes</a>
 					</div>
 				</div>
 
@@ -40,12 +45,20 @@
 						<p class="mt-2 text-3xl font-semibold">{{ $stats['pets_published'] ?? '—' }}</p>
 					</div>
 					<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card animate-fade-up" style="animation-delay:.1s">
+						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Solicitudes Activas</p>
+						<p class="mt-2 text-3xl font-semibold">{{ $stats['applications_active'] ?? '—' }}</p>
+					</div>
+					<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card animate-fade-up" style="animation-delay:.15s">
 						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Solicitudes Totales</p>
 						<p class="mt-2 text-3xl font-semibold">{{ $stats['applications_total'] ?? 0 }}</p>
 					</div>
-					<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card animate-fade-up" style="animation-delay:.15s">
-						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Solicitudes Pendientes</p>
-						<p class="mt-2 text-3xl font-semibold">{{ $stats['applications_pending'] ?? '—' }}</p>
+					<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card animate-fade-up" style="animation-delay:.2s">
+						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Aprobadas</p>
+						<p class="mt-2 text-3xl font-semibold">{{ $stats['applications_approved'] ?? '—' }}</p>
+					</div>
+					<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card animate-fade-up" style="animation-delay:.25s">
+						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Rechazadas</p>
+						<p class="mt-2 text-3xl font-semibold">{{ $stats['applications_rejected'] ?? '—' }}</p>
 					</div>
 				</section>
 
@@ -54,7 +67,25 @@
 					<div class="lg:col-span-2 bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card">
 						<div class="flex items-center justify-between">
 							<h2 class="text-lg font-semibold">Actividad Reciente</h2>
-							<a href="{{ route('orgs.adoptions.index') }}" class="text-sm text-primary hover:underline">Ver todas</a>
+							<div class="flex items-center gap-2">
+								<a href="{{ route('submissions.index') }}" class="text-sm text-primary hover:underline">Ver todas</a>
+							</div>
+						</div>
+
+						<!-- Filtros rápidos por estado -->
+						<div class="mt-3 flex flex-wrap gap-2">
+							@php $chips = [
+								['key'=>'pending','label'=>'Pendientes'],
+								['key'=>'under_review','label'=>'En revisión'],
+								['key'=>'approved','label'=>'Aprobadas'],
+								['key'=>'rejected','label'=>'Rechazadas'],
+							]; @endphp
+							@foreach($chips as $c)
+								<a href="{{ route('submissions.index', ['status' => $c['key']]) }}"
+								   class="badge {{ in_array($c['key'], ['approved']) ? 'badge-primary' : (in_array($c['key'], ['rejected']) ? 'badge-danger' : 'bg-neutral-mid/20 text-neutral-dark') }}">
+									{{ $c['label'] }}
+								</a>
+							@endforeach
 						</div>
 						<div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div>
@@ -80,12 +111,13 @@
 								<ul class="mt-3 space-y-3">
 									@forelse($recentApps as $app)
 										<li class="p-3 rounded-xl border border-neutral-mid/30 hover:shadow-card transition">
-											<div class="flex items-center justify-between">
+											<div class="flex items-center justify-between gap-4">
 												<div>
 													<p class="font-medium">Solicitud #{{ $app->id }}</p>
 													<p class="text-xs text-neutral-dark/70">{{ $app->created_at?->diffForHumans() }}</p>
+													<p class="text-xs text-neutral-dark/70 mt-1">Mascota: <span class="font-medium">{{ $app->pet->name ?? 'N/D' }}</span> • Adoptante: <span class="font-medium">{{ $app->user->name ?? 'N/D' }}</span></p>
 												</div>
-												<a href="{{ route('orgs.adoptions.show', $app->id) }}" class="text-sm text-primary hover:underline">Ver</a>
+												<a href="{{ route('submissions.show', $app->id) }}" class="text-sm text-primary hover:underline">Ver</a>
 											</div>
 										</li>
 									@empty
@@ -124,7 +156,7 @@
 							<p class="font-medium">Gestionar Mascotas</p>
 							<p class="text-xs text-neutral-dark/70 mt-1">Edita, publica o archiva mascotas.</p>
 						</a>
-						<a href="{{ route('orgs.adoptions.index') }}" class="p-5 rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark hover:shadow-card transition block">
+						<a href="{{ route('submissions.index') }}" class="p-5 rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark hover:shadow-card transition block">
 							<p class="font-medium">Revisar Solicitudes</p>
 							<p class="text-xs text-neutral-dark/70 mt-1">Procesa y responde a adoptantes.</p>
 						</a>
@@ -140,8 +172,10 @@
 		<script>
 			// Mostrar alerta si el perfil de la organización está incompleto
 			window.addEventListener('DOMContentLoaded', function () {
-				const incomplete = {{ ($orgProfileIncomplete ?? false) ? 'true' : 'false' }};
-				const missing = {!! json_encode($orgMissingLabels ?? []) !!};
+				const guard = document.getElementById('org-guard');
+				const incomplete = (guard?.dataset.incomplete === '1');
+				let missing = [];
+				try { missing = JSON.parse(guard?.dataset.missing || '[]'); } catch (e) { missing = []; }
 				if (incomplete) {
 					let html = '';
 					if (missing && missing.length) {

@@ -104,7 +104,7 @@
 					<label class="text-sm">Imagen de portada</label>
 					<input name="cover_image" type="file" accept="image/*" class="mt-1 block w-full rounded-xl border-neutral-mid/40">
 					@if($pet->cover_image)
-						<img src="{{ asset('storage/'.$pet->cover_image) }}" alt="{{ $pet->name }}" class="mt-2 w-40 h-28 object-cover rounded-xl border border-neutral-mid/40">
+						<img src="{{ \Illuminate\Support\Facades\Storage::url($pet->cover_image) }}" alt="{{ $pet->name }}" class="mt-2 w-40 h-28 object-cover rounded-xl border border-neutral-mid/40">
 					@endif
 					@error('cover_image')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
 				</div>

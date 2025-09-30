@@ -7,6 +7,7 @@ use App\Models\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 
 class OrgPetController extends Controller
@@ -160,8 +161,12 @@ class OrgPetController extends Controller
         // Asignar a la organización del usuario (ya validada como existente y completa)
         $data['organization_id'] = $org->id;
 
-        if ($request->hasFile('cover_image')) {
+        if ($request->hasFile('cover_image') && $request->file('cover_image')->isValid()) {
             $data['cover_image'] = $request->file('cover_image')->store('pets', 'public');
+            // Fallback: si no existe el enlace simbólico public/storage, copiar el archivo para servirlo
+            $this->syncPublicStorageCopy($data['cover_image']);
+        } else {
+            return back()->withErrors(['cover_image' => 'Error al cargar la imagen. Asegúrate de que el archivo sea válido.']);
         }
 
         // Normalizar edad a cadena (años)
@@ -253,10 +258,18 @@ class OrgPetController extends Controller
         ]);
 
         if ($request->hasFile('cover_image')) {
-            if ($pet->cover_image) {
-                Storage::disk('public')->delete($pet->cover_image);
+            if ($pet->cover_image && is_string($pet->cover_image)) {
+                $prevRel = trim($pet->cover_image, '/');
+                if ($prevRel !== '') {
+                    Storage::disk('public')->delete($prevRel);
+                    // Limpiar también copia pública si existe (sólo si es archivo)
+                    $publicOld = public_path('storage/'.$prevRel);
+                    if (File::isFile($publicOld)) { @File::delete($publicOld); }
+                }
             }
             $data['cover_image'] = $request->file('cover_image')->store('pets', 'public');
+            // Fallback de copia pública
+            $this->syncPublicStorageCopy($data['cover_image']);
         }
 
         // Normalizar edad (cadena) y fusionar metadata (peso/altura) en historia
@@ -319,10 +332,44 @@ class OrgPetController extends Controller
         if ($orgId && $pet->organization_id !== $orgId) {
             abort(403);
         }
-        if ($pet->cover_image) {
-            Storage::disk('public')->delete($pet->cover_image);
+        if ($pet->cover_image && is_string($pet->cover_image)) {
+            $prevRel = trim($pet->cover_image, '/');
+            if ($prevRel !== '') {
+                Storage::disk('public')->delete($prevRel);
+                $publicOld = public_path('storage/'.$prevRel);
+                if (File::isFile($publicOld)) { @File::delete($publicOld); }
+            }
         }
         $pet->delete();
         return redirect()->route('orgs.pets.index')->with('status', 'Mascota eliminada');
+    }
+
+    /**
+     * Si no existe el symlink public/storage, intenta copiar el archivo subido
+     * desde storage/app/public hacia public/storage para servirlo.
+     */
+    private function syncPublicStorageCopy(string $relativePath): void
+    {
+        $relativePath = ltrim($relativePath ?? '', '/');
+        if ($relativePath === '') { return; }
+        $symlinkPath = public_path('storage');
+        // Si existe directorio/symlink, no hacemos nada (Laravel servirá el archivo correctamente)
+        if (is_link($symlinkPath)) {
+            return;
+        }
+        $source = storage_path('app/public/'.$relativePath);
+        $destDir = public_path('storage/'.dirname($relativePath));
+        $dest = public_path('storage/'.$relativePath);
+        try {
+            File::ensureDirectoryExists($destDir);
+            if ($relativePath !== '' && File::exists($source)) {
+                // Copiar si no existe o si el origen es más reciente
+                if (!File::exists($dest) || filemtime($source) > @filemtime($dest)) {
+                    @File::copy($source, $dest);
+                }
+            }
+        } catch (\Throwable $e) {
+            // Silenciar fallos de copia en entornos restringidos; la app seguirá sirviendo desde disk('public') si hay symlink
+        }
     }
 }

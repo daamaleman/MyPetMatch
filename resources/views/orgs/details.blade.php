@@ -75,7 +75,7 @@
 						@continue(isset($pet->status) && $pet->status !== 'published')
 						<a href="{{ route('pets.details', ['pet' => $pet->id]) }}" class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark overflow-hidden hover:shadow-card transition">
 							@if($pet->cover_image)
-								<img src="{{ asset('storage/'.$pet->cover_image) }}" alt="{{ $pet->name }}" class="w-full h-40 object-cover">
+								<img src="{{ \Illuminate\Support\Facades\Storage::url($pet->cover_image) }}" alt="{{ $pet->name }}" class="w-full h-40 object-cover">
 							@endif
 							<div class="p-4">
 								<p class="font-medium">{{ $pet->name }}</p>

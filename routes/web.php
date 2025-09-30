@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AdoptionApplicationController;
 use App\Http\Controllers\OrgDashboardController;
 use App\Http\Controllers\OrgPetController;
 use App\Http\Controllers\OrgAdoptionApplicationController;
@@ -73,35 +74,30 @@ Route::middleware('auth')->group(function () {
         Route::view('/', 'adoptions.dashboard')->name('dashboard');
         // Listado de mascotas disponibles (index)
         Route::view('/mine', 'adoptions.index')->name('index');
-        // Placeholder: iniciar solicitud de adopción (a implementar)
-        Route::get('/apply/{pet}', function (\App\Models\Pet $pet) {
-            abort_unless($pet->status === 'published', 404);
-            $user = auth()->user();
-            $ap = optional($user->adopterProfile);
-            $required = ['phone','address_line1','city','state','country','zip'];
-            $labels = [
-                'phone' => 'Teléfono',
-                'address_line1' => 'Dirección',
-                'city' => 'Municipio',
-                'state' => 'Departamento',
-                'country' => 'País',
-                'zip' => 'Código Postal',
-            ];
-            $missing = [];
-            foreach ($required as $f) {
-                $v = $ap->{$f} ?? null;
-                if (blank($v)) { $missing[] = $f; }
-            }
-            $adopterIncomplete = count($missing) > 0;
-            $adopterMissingLabels = array_map(fn($f) => $labels[$f] ?? ucfirst($f), $missing);
+        // Iniciar solicitud de adopción (form)
+        Route::get('/apply/{pet}', [AdoptionApplicationController::class, 'apply'])
+            ->name('apply');
 
-            return view('adoptions.apply', compact('pet', 'adopterIncomplete', 'adopterMissingLabels'));
-        })->name('apply');
+        // Enviar solicitud de adopción
+        Route::post('/', [AdoptionApplicationController::class, 'store'])
+            ->name('store');
 
         // Detalle de solicitud (placeholder aún)
         Route::view('/{id}', 'adoptions.details')
             ->whereNumber('id')
             ->name('details');
+    });
+
+    // Submissions: listado/gestión para ambos roles (adoptante y organización)
+    Route::prefix('submissions')->as('submissions.')->group(function(){
+        // Listado: detecta rol en el controlador
+        Route::get('/', [AdoptionApplicationController::class, 'index'])->name('index');
+        // Detalle
+        Route::get('/{application}', [AdoptionApplicationController::class, 'show'])->name('show');
+        // Editar (solo adoptantes dueños de la solicitud y en estado editable)
+        Route::get('/{application}/edit', [AdoptionApplicationController::class, 'edit'])->name('edit');
+        // Update (adoptante: mensaje/answers; org: estado)
+        Route::put('/{application}', [AdoptionApplicationController::class, 'update'])->name('update');
     });
 });
 

@@ -46,7 +46,7 @@
 		<div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
 			<div class="lg:col-span-2">
 				@if($pet->cover_image)
-					<img src="{{ asset('storage/'.$pet->cover_image) }}" alt="{{ $pet->name }}" class="w-full h-80 object-cover rounded-2xl border border-neutral-mid/40">
+					<img src="{{ \Illuminate\Support\Facades\Storage::url($pet->cover_image) }}" alt="{{ $pet->name }}" class="w-full h-80 object-cover rounded-2xl border border-neutral-mid/40">
 				@else
 					<div class="w-full h-80 rounded-2xl border border-neutral-mid/40 flex items-center justify-center text-sm text-neutral-dark/70">Sin imagen</div>
 				@endif

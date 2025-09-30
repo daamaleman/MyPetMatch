@@ -82,6 +82,10 @@ class OrgDashboardController extends Controller
             'applications_total' => (clone $appQuery)->count(),
             'pets_published' => null,
             'applications_pending' => null,
+            // New detailed counters
+            'applications_active' => null,      // pending + under_review
+            'applications_approved' => null,
+            'applications_rejected' => null,
         ];
 
         if (Schema::hasColumn('pets', 'status')) {
@@ -89,10 +93,14 @@ class OrgDashboardController extends Controller
         }
         if (Schema::hasColumn('adoption_applications', 'status')) {
             $stats['applications_pending'] = (clone $appQuery)->where('status', 'pending')->count();
+            $stats['applications_active'] = (clone $appQuery)->whereIn('status', ['pending','under_review'])->count();
+            $stats['applications_approved'] = (clone $appQuery)->where('status', 'approved')->count();
+            $stats['applications_rejected'] = (clone $appQuery)->where('status', 'rejected')->count();
         }
 
-        $recentPets = (clone $petQuery)->latest()->limit(5)->get();
-        $recentApps = (clone $appQuery)->latest()->limit(5)->get();
+    $recentPets = (clone $petQuery)->latest()->limit(5)->get();
+    // Eager load relations for better display in the dashboard
+    $recentApps = (clone $appQuery)->with(['pet','user'])->latest()->limit(5)->get();
 
         $statusBreakdown = [];
         if (Schema::hasColumn('adoption_applications', 'status')) {

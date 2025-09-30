@@ -100,19 +100,20 @@
     {{-- Subnavegación contextual para paneles --}}
     @auth
     @php $role = auth()->user()->role ?? null; @endphp
-    @if(($role === 'organizacion' || $role === 'admin') && (request()->routeIs('orgs.*') || request()->routeIs('adoptions.*')))
+    @if(($role === 'organizacion' || $role === 'admin') && (request()->routeIs('orgs.*') || request()->routeIs('adoptions.*') || request()->routeIs('submissions.*') || request()->routeIs('pets.*')))
     <div class="border-t border-neutral-mid/30 bg-white/70 dark:bg-neutral-dark/60">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center gap-6 text-sm">
             <a href="{{ route('orgs.dashboard') }}" class="{{ request()->routeIs('orgs.dashboard') ? 'text-primary font-medium' : 'hover:text-primary' }}">Resumen</a>
-            <a href="{{ route('orgs.pets.index') }}" class="{{ request()->routeIs('orgs.pets.*') ? 'text-primary font-medium' : 'hover:text-primary' }}">Mascotas</a>
-            <a href="{{ route('orgs.adoptions.index') }}" class="{{ request()->routeIs('orgs.adoptions.*') ? 'text-primary font-medium' : 'hover:text-primary' }}">Solicitudes</a>
+            <a href="{{ route('orgs.pets.index') }}" class="{{ (request()->routeIs('orgs.pets.*') || request()->routeIs('pets.*')) ? 'text-primary font-medium' : 'hover:text-primary' }}">Mascotas</a>
+            <a href="{{ route('submissions.index') }}" class="{{ request()->routeIs('submissions.*') ? 'text-primary font-medium' : 'hover:text-primary' }}">Solicitudes</a>
         </div>
     </div>
-    @elseif(($role === 'adoptante' || $role === 'admin') && (request()->routeIs('adoptions.*') || request()->routeIs('orgs.*')))
+    @elseif(($role === 'adoptante' || $role === 'admin') && (request()->routeIs('adoptions.*') || request()->routeIs('orgs.*') || request()->routeIs('submissions.*') || request()->routeIs('pets.*')))
     <div class="border-t border-neutral-mid/30 bg-white/70 dark:bg-neutral-dark/60">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center gap-6 text-sm">
             <a href="{{ route('adoptions.dashboard') }}" class="{{ request()->routeIs('adoptions.dashboard') ? 'text-primary font-medium' : 'hover:text-primary' }}">Mi Área</a>
-            <a href="{{ route('adoptions.browse') }}" class="{{ request()->routeIs('adoptions.browse') ? 'text-primary font-medium' : 'hover:text-primary' }}">Adoptar</a>
+            <a href="{{ route('adoptions.browse') }}" class="{{ (request()->routeIs('adoptions.browse') || request()->routeIs('pets.details')) ? 'text-primary font-medium' : 'hover:text-primary' }}">Adoptar</a>
+            <a href="{{ route('submissions.index') }}" class="{{ request()->routeIs('submissions.*') ? 'text-primary font-medium' : 'hover:text-primary' }}">Mis solicitudes</a>
         </div>
     </div>
     @endif
