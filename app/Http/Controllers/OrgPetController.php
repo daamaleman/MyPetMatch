@@ -163,10 +163,9 @@ class OrgPetController extends Controller
 
         if ($request->hasFile('cover_image') && $request->file('cover_image')->isValid()) {
             $data['cover_image'] = $request->file('cover_image')->store('pets', 'public');
-            // Fallback: si no existe el enlace simbólico public/storage, copiar el archivo para servirlo
             $this->syncPublicStorageCopy($data['cover_image']);
         } else {
-            return back()->withErrors(['cover_image' => 'Error al cargar la imagen. Asegúrate de que el archivo sea válido.']);
+            unset($data['cover_image']); // Si no hay imagen válida, no guardar el campo
         }
 
         // Normalizar edad a cadena (años)
@@ -262,14 +261,14 @@ class OrgPetController extends Controller
                 $prevRel = trim($pet->cover_image, '/');
                 if ($prevRel !== '') {
                     Storage::disk('public')->delete($prevRel);
-                    // Limpiar también copia pública si existe (sólo si es archivo)
                     $publicOld = public_path('storage/'.$prevRel);
                     if (File::isFile($publicOld)) { @File::delete($publicOld); }
                 }
             }
             $data['cover_image'] = $request->file('cover_image')->store('pets', 'public');
-            // Fallback de copia pública
             $this->syncPublicStorageCopy($data['cover_image']);
+        } else {
+            unset($data['cover_image']); // Si no hay imagen válida, no guardar el campo
         }
 
         // Normalizar edad (cadena) y fusionar metadata (peso/altura) en historia

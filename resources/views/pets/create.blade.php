@@ -117,8 +117,8 @@
 					</select>
 				</div>
 				<div>
-					<label class="text-sm">Imagen de portada</label>
-					<input name="cover_image" type="file" accept="image/*" class="mt-1 block w-full rounded-xl border-neutral-mid/40">
+					<label class="text-sm">Imagen de portada (opcional)</label>
+					<input name="cover_image" type="file" accept="image/*,.heic,.heif,.avif" class="mt-1 block w-full rounded-xl border-neutral-mid/40">
 					@error('cover_image')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
 				</div>
 			</div>
