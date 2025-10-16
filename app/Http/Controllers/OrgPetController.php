@@ -218,6 +218,11 @@ class OrgPetController extends Controller
 
         $pet = Pet::create($data);
 
+        // Si la mascota se creó como publicada, redirigir a la vista pública de la mascota
+        if (isset($data['status']) && $data['status'] === 'published') {
+            return redirect()->route('pets.details', $pet->id)->with('status', 'Mascota publicada correctamente');
+        }
+
         return redirect()->route('orgs.pets.edit', $pet->id)->with('status', 'Mascota creada correctamente');
     }
 
@@ -336,6 +341,11 @@ class OrgPetController extends Controller
         }
 
         $pet->update($data);
+
+        // Si al actualizar la mascota se pone como publicada, redirigir al índice público de adopciones
+        if (isset($data['status']) && $data['status'] === 'published') {
+            return redirect()->route('adoptions.browse')->with('status', 'Mascota publicada correctamente');
+        }
 
         return back()->with('status', 'Mascota actualizada');
     }
