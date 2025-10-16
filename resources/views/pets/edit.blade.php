@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,9 +8,14 @@
 	@vite(['resources/css/app.css', 'resources/js/app.js'])
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 	<meta name="color-scheme" content="light dark">
-	<style>html{scroll-behavior:smooth}</style>
+	<style>
+		html {
+			scroll-behavior: smooth
+		}
+	</style>
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
+
 <body class="font-poppins bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white">
 	@include('partials.header')
 
@@ -20,7 +26,7 @@
 		</div>
 
 		@if (session('status'))
-			<div class="mt-4 rounded-xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-3 text-sm">{{ session('status') }}</div>
+		<div class="mt-4 rounded-xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-3 text-sm">{{ session('status') }}</div>
 		@endif
 
 		<form class="mt-6 space-y-5" method="POST" action="{{ route('orgs.pets.update', $pet->id) }}" enctype="multipart/form-data">
@@ -38,7 +44,7 @@
 					<input name="species" list="species-list" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('species', $pet->species) }}" placeholder="Ej: Perro" />
 					<datalist id="species-list">
 						@foreach($speciesOpts as $opt)
-							<option value="{{ $opt }}"></option>
+						<option value="{{ $opt }}"></option>
 						@endforeach
 					</datalist>
 				</div>
@@ -57,8 +63,8 @@
 						<option value="">—</option>
 						@php $sizeOpts = $sizeOptions ?? ['Pequeño','Mediano','Grande','Extra grande','Desconocido']; @endphp
 						@foreach($sizeOpts as $opt)
-							@php $sel = old('size', $pet->size) === $opt; @endphp
-							<option value="{{ $opt }}" @selected($sel)>{{ $opt }}</option>
+						@php $sel = old('size', $pet->size) === $opt; @endphp
+						<option value="{{ $opt }}" @selected($sel)>{{ $opt }}</option>
 						@endforeach
 					</select>
 				</div>
@@ -95,16 +101,16 @@
 					<label class="text-sm">Estado</label>
 					<select name="status" class="mt-1 block w-full rounded-xl border-neutral-mid/40">
 						@php $st = old('status', $pet->status); @endphp
-						<option value="draft" @selected($st==='draft')>Borrador</option>
-						<option value="published" @selected($st==='published')>Publicado</option>
-						<option value="archived" @selected($st==='archived')>Archivado</option>
+						<option value="draft" @selected($st==='draft' )>Borrador</option>
+						<option value="published" @selected($st==='published' )>Publicado</option>
+						<option value="archived" @selected($st==='archived' )>Archivado</option>
 					</select>
 				</div>
 				<div>
 					<label class="text-sm">Imagen de portada (opcional)</label>
-					<input name="cover_image" type="file" accept="image/*,.heic,.heif,.avif" class="mt-1 block w-full rounded-xl border-neutral-mid/40">
+					<input id="cover_image_input" name="cover_image" type="file" accept="image/png,image/jpeg,image/jpg" class="mt-1 block w-full rounded-xl border-neutral-mid/40">
 					@if($pet->cover_image)
-						<img src="{{ \Illuminate\Support\Facades\Storage::url($pet->cover_image) }}" alt="{{ $pet->name }}" class="mt-2 w-40 h-28 object-cover rounded-xl border border-neutral-mid/40">
+					<img id="existing_cover_preview" src="{{ \Illuminate\Support\Facades\Storage::url($pet->cover_image) }}" alt="Portada {{ $pet->name }}" class="mt-2 w-40 h-28 object-cover rounded-xl border border-neutral-mid/40">
 					@endif
 					@error('cover_image')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
 				</div>
@@ -123,6 +129,31 @@
 			<button class="btn btn-danger" type="submit">Eliminar</button>
 		</form>
 	</div>
-@include('partials.footer')
+	@include('partials.footer')
 </body>
+
 </html>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		const input = document.getElementById('cover_image_input');
+		const existing = document.getElementById('existing_cover_preview');
+		if (!input) return;
+		input.addEventListener('change', function() {
+			const f = this.files && this.files[0];
+			if (!f) return;
+			if (!f.type.startsWith('image/')) return;
+			const url = URL.createObjectURL(f);
+			if (existing) {
+				existing.src = url;
+			} else {
+				const img = document.createElement('img');
+				img.id = 'existing_cover_preview';
+				img.src = url;
+				img.alt = 'Previsualización';
+				img.className = 'mt-2 w-40 h-28 object-cover rounded-xl border border-neutral-mid/40';
+				input.insertAdjacentElement('afterend', img);
+			}
+		});
+	});
+</script>
