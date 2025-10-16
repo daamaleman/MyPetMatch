@@ -79,3 +79,54 @@ body {
 .badge-danger {
   @apply bg-danger text-white;
 }
+
+/* -------------------------------------------------
+   Responsive tweaks (mobile-first, non-intrusive)
+   These rules aim to improve UX on small screens
+   without altering desktop layout.
+   ------------------------------------------------- */
+
+/* Make images scale inside cards and content blocks */
+.object-cover, img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Forms and inputs: full width on small devices */
+@media (max-width: 768px) {
+  input[type="text"], input[type="number"], input[type="email"], textarea, select, .btn {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Stack grid columns into single column where appropriate */
+  .grid.grid-cols-1.md\:grid-cols-2, .grid.grid-cols-1.md\:grid-cols-2 > * {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Reduce paddings and make cards more compact on mobile */
+  .p-4 { padding: 0.75rem !important; }
+  .p-5 { padding: 0.75rem !important; }
+  .py-8 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+
+  /* Make header nav compact */
+  .max-w-7xl { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+
+  /* Buttons: full width primary actions */
+  .btn-primary, .btn { display: block; width: 100%; text-align: center; }
+
+  /* Footer spacing adjustments */
+  footer { padding: 1rem 0; }
+
+  /* Pagination and lists: ensure they fit */
+  .pagination, .mt-6 .links { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Ensure responsive nav menu toggles reliably even if CSS specificity conflicts
+     This targets the nav menu element added in navigation.blade.php (#navMenu) */
+  #navMenu { display: none; }
+  #navMenu.block { display: block !important; position: relative; z-index: 60; }
+  #navToggleBtn { z-index: 70; }
+}
+
+/* Minor utility: prevent overflow from long words (e.g., tokens/urls) */
+.truncate-break { word-break: break-word; overflow-wrap: anywhere; }

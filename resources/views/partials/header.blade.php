@@ -13,6 +13,31 @@
             <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'text-primary font-medium' : 'hover:text-primary' }}">Contacto</a>
         </nav>
         <div class="flex items-center gap-3">
+            <!-- Mobile hamburger -->
+            <button id="mobileNavBtn" class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100" aria-expanded="false" aria-controls="mobileNav">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <!-- Mobile menu (hidden on md+) -->
+            <div id="mobileNav" class="absolute top-16 left-0 right-0 bg-white/95 dark:bg-neutral-dark/90 border-t border-neutral-mid/30 shadow-md p-4 hidden md:hidden z-40">
+                <div class="flex flex-col gap-3">
+                    <a href="/" class="px-3 py-2 rounded-lg">Inicio</a>
+                    <a href="{{ route('about') }}" class="px-3 py-2 rounded-lg">Nosotros</a>
+                    <a href="{{ route('features') }}" class="px-3 py-2 rounded-lg">Cómo Funciona</a>
+                    <a href="{{ route('orgs.index') }}" class="px-3 py-2 rounded-lg">Organizaciones</a>
+                    <a href="{{ route('adoptions.browse') }}" class="px-3 py-2 rounded-lg">Adoptar</a>
+                    <a href="{{ route('contact') }}" class="px-3 py-2 rounded-lg">Contacto</a>
+                    @auth
+                    {{-- Authenticated users: no large "Mi Área" here (keep top CTA) --}}
+                    @else
+                    <a href="{{ route('login') }}" class="px-3 py-2">Iniciar Sesión</a>
+                    @if(Route::has('register'))
+                    <a href="{{ route('register') }}" class="btn btn-primary">Registrarse</a>
+                    @endif
+                    @endauth
+                </div>
+            </div>
             @auth
             @php
             $user = auth()->user();
@@ -85,6 +110,32 @@
                     });
                     document.addEventListener('keydown', (e) => {
                         if (e.key === 'Escape' && open) closeMenu();
+                    });
+                })();
+            </script>
+            <script>
+                // Mobile nav toggle
+                (function() {
+                    const navBtn = document.getElementById('mobileNavBtn');
+                    const nav = document.getElementById('mobileNav');
+                    if (!navBtn || !nav) return;
+                    navBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const isHidden = nav.classList.contains('hidden');
+                        if (isHidden) {
+                            nav.classList.remove('hidden');
+                            navBtn.setAttribute('aria-expanded', 'true');
+                        } else {
+                            nav.classList.add('hidden');
+                            navBtn.setAttribute('aria-expanded', 'false');
+                        }
+                    });
+                    // close when clicking outside
+                    document.addEventListener('click', function(e) {
+                        if (!nav.contains(e.target) && e.target !== navBtn) {
+                            nav.classList.add('hidden');
+                            navBtn.setAttribute('aria-expanded', 'false');
+                        }
                     });
                 })();
             </script>
