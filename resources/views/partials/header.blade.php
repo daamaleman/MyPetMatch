@@ -32,9 +32,7 @@
                     {{-- Authenticated users: no large "Mi Área" here (keep top CTA) --}}
                     @else
                     <a href="{{ route('login') }}" class="px-3 py-2">Iniciar Sesión</a>
-                    @if(Route::has('register'))
-                    <a href="{{ route('register') }}" class="btn btn-primary">Registrarse</a>
-                    @endif
+                    {{-- Registro removido del menú móvil para evitar botón grande inferior; se mantiene el botón pequeño superior --}}
                     @endauth
                 </div>
             </div>
