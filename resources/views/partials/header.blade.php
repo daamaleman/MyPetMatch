@@ -113,32 +113,7 @@
                     });
                 })();
             </script>
-            <script>
-                // Mobile nav toggle
-                (function() {
-                    const navBtn = document.getElementById('mobileNavBtn');
-                    const nav = document.getElementById('mobileNav');
-                    if (!navBtn || !nav) return;
-                    navBtn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const isHidden = nav.classList.contains('hidden');
-                        if (isHidden) {
-                            nav.classList.remove('hidden');
-                            navBtn.setAttribute('aria-expanded', 'true');
-                        } else {
-                            nav.classList.add('hidden');
-                            navBtn.setAttribute('aria-expanded', 'false');
-                        }
-                    });
-                    // close when clicking outside
-                    document.addEventListener('click', function(e) {
-                        if (!nav.contains(e.target) && e.target !== navBtn) {
-                            nav.classList.add('hidden');
-                            navBtn.setAttribute('aria-expanded', 'false');
-                        }
-                    });
-                })();
-            </script>
+
             @else
             <a href="{{ route('login') }}" class="hidden sm:inline-flex text-sm">Iniciar Sesión</a>
             @if(Route::has('register'))
@@ -170,3 +145,58 @@
     @endif
     @endauth
 </header>
+
+<script>
+    // Public header mobile toggle: ensure hamburger works on mobile pages
+    (function() {
+        if (typeof window === 'undefined') return;
+        // wait a tick in case DOM not fully parsed
+        function init() {
+            const btn = document.getElementById('mobileNavBtn');
+            const nav = document.getElementById('mobileNav');
+            if (!btn || !nav) return;
+
+            const openMenu = function() {
+                nav.classList.remove('hidden');
+                nav.classList.add('block');
+                btn.setAttribute('aria-expanded', 'true');
+                document.documentElement.classList.add('no-scroll');
+                document.body.style.overflow = 'hidden';
+            };
+
+            const closeMenu = function() {
+                nav.classList.remove('block');
+                nav.classList.add('hidden');
+                btn.setAttribute('aria-expanded', 'false');
+                document.documentElement.classList.remove('no-scroll');
+                document.body.style.overflow = '';
+            };
+
+            const toggle = function(e) {
+                if (e && e.preventDefault) e.preventDefault();
+                if (nav.classList.contains('hidden')) openMenu();
+                else closeMenu();
+            };
+
+            btn.addEventListener('click', toggle);
+            btn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                toggle(e);
+            });
+
+            // Close on outside click
+            document.addEventListener('click', function(e) {
+                if (!nav.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+                    if (!nav.classList.contains('hidden')) closeMenu();
+                }
+            });
+            // Close on Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeMenu();
+            });
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+        else init();
+    })();
+</script>

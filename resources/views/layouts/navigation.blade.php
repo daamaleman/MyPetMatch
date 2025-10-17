@@ -115,25 +115,64 @@
     </div>
 </nav>
 
-<!-- Fallback JS: si Alpine no se inicializó, habilitar toggle manual -->
+<!-- Robust fallback JS: make hamburger work even without Alpine -->
 <script>
     (function() {
-        // Ejecutar solo en navegador
         if (typeof window === 'undefined') return;
         const btn = document.getElementById('navToggleBtn');
         const menu = document.getElementById('navMenu');
         if (!btn || !menu) return;
-        // Si Alpine está presente, no interferimos
-        if (window.Alpine && window.Alpine.start) return;
-        // Fallback simple: alternar clases hidden/block
-        btn.addEventListener('click', function(e) {
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
-                menu.classList.add('block');
-            } else {
-                menu.classList.remove('block');
-                menu.classList.add('hidden');
+
+        // Helper to show/hide and update ARIA
+        function showMenu() {
+            menu.classList.remove('hidden');
+            menu.classList.add('block');
+            btn.setAttribute('aria-expanded', 'true');
+            // swap svg paths if present
+            const paths = btn.querySelectorAll('path');
+            if (paths && paths.length >= 2) {
+                paths[0].classList.add('hidden');
+                paths[0].classList.remove('inline-flex');
+                paths[1].classList.remove('hidden');
+                paths[1].classList.add('inline-flex');
             }
+        }
+
+        function hideMenu() {
+            menu.classList.remove('block');
+            menu.classList.add('hidden');
+            btn.setAttribute('aria-expanded', 'false');
+            const paths = btn.querySelectorAll('path');
+            if (paths && paths.length >= 2) {
+                paths[1].classList.add('hidden');
+                paths[1].classList.remove('inline-flex');
+                paths[0].classList.remove('hidden');
+                paths[0].classList.add('inline-flex');
+            }
+        }
+
+        function toggleMenu(e) {
+            e && e.preventDefault();
+            if (menu.classList.contains('hidden')) showMenu();
+            else hideMenu();
+        }
+
+        // Always attach listeners (don't depend on Alpine)
+        btn.addEventListener('click', toggleMenu);
+        btn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            toggleMenu(e);
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!menu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+                if (!menu.classList.contains('hidden')) hideMenu();
+            }
+        });
+        // Close on Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') hideMenu();
         });
     })();
 </script>
