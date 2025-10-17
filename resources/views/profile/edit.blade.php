@@ -208,6 +208,103 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Helper: serialize a form's relevant inputs to a string for comparison
+        function serializeForm(form) {
+            var parts = [];
+            Array.from(form.elements).forEach(function(el) {
+                if (!el.name) return;
+                // ignore CSRF, method fields and file inputs
+                if (el.type === 'file' || el.name === '_token' || el.name === '_method') return;
+                if (el.type === 'checkbox' || el.type === 'radio') {
+                    parts.push(encodeURIComponent(el.name) + '=' + (el.checked ? '1' : '0'));
+                } else {
+                    parts.push(encodeURIComponent(el.name) + '=' + encodeURIComponent(el.value || ''));
+                }
+            });
+            return parts.join('&');
+        }
+
+        // Build initial snapshots for forms we care about (both whole-form and per-field)
+        var initialSnapshots = {};
+        var initialFieldMaps = {};
+        ['profile-update-form', 'password-update-form', 'adopter-update-form'].forEach(function(id) {
+            var f = document.getElementById(id);
+            if (f) {
+                initialSnapshots[id] = serializeForm(f);
+                // per-field map
+                var map = {};
+                Array.from(f.elements).forEach(function(el) {
+                    if (!el.name) return;
+                    if (el.type === 'file' || el.name === '_token' || el.name === '_method') return;
+                    if (el.type === 'checkbox' || el.type === 'radio') {
+                        map[el.name + '::' + (el.id || el.name)] = el.checked ? '1' : '0';
+                    } else {
+                        map[el.name + '::' + (el.id || el.name)] = el.value || '';
+                    }
+                });
+                initialFieldMaps[id] = map;
+            }
+        });
+
+        // Helper: add/remove asterisk indicator next to a label or input
+        function setIndicatorForElement(el, show) {
+            if (!el) return;
+            var label = null;
+            if (el.id) label = document.querySelector("label[for='" + el.id + "']");
+            if (!label) {
+                // fallback: if input is inside a label
+                label = el.closest('label');
+            }
+            if (label) {
+                var existing = label.querySelector('.field-modified-indicator');
+                if (show) {
+                    if (!existing) {
+                        var span = document.createElement('span');
+                        span.className = 'field-modified-indicator text-primary font-semibold ml-1';
+                        span.textContent = '*';
+                        label.appendChild(span);
+                    }
+                } else {
+                    if (existing) existing.remove();
+                }
+            } else {
+                // fallback: place indicator after element
+                var existing = el.parentNode && el.parentNode.querySelector && el.parentNode.querySelector('.field-modified-indicator');
+                if (show) {
+                    if (!existing) {
+                        var span2 = document.createElement('span');
+                        span2.className = 'field-modified-indicator text-primary font-semibold ml-1';
+                        span2.textContent = '*';
+                        el.insertAdjacentElement('afterend', span2);
+                    }
+                } else {
+                    if (existing) existing.remove();
+                }
+            }
+        }
+
+        // Wire per-field listeners to update indicators
+        Object.keys(initialFieldMaps).forEach(function(formId) {
+            var f = document.getElementById(formId);
+            if (!f) return;
+            Array.from(f.elements).forEach(function(el) {
+                if (!el.name) return;
+                if (el.type === 'file' || el.name === '_token' || el.name === '_method') return;
+                var key = el.name + '::' + (el.id || el.name);
+                var initial = initialFieldMaps[formId][key];
+                var listener = function() {
+                    var current;
+                    if (el.type === 'checkbox' || el.type === 'radio') current = el.checked ? '1' : '0';
+                    else current = el.value || '';
+                    setIndicatorForElement(el, current !== initial);
+                };
+                el.addEventListener('input', listener);
+                el.addEventListener('change', listener);
+                // run once to ensure correct initial state
+                listener();
+            });
+        });
+
         // Generic confirm for simple forms
         document.querySelectorAll('[data-confirm-form]').forEach(function(btn) {
             btn.addEventListener('click', function(e) {
@@ -240,6 +337,21 @@
                         }
                     });
                     return;
+                }
+
+                // If we have a snapshot for this form, check for changes
+                var snapshot = initialSnapshots[formId];
+                if (typeof snapshot !== 'undefined') {
+                    var current = serializeForm(form);
+                    if (current === snapshot) {
+                        Swal.fire({
+                            title: 'Sin cambios',
+                            text: 'No se ha realizado ningún cambio en los campos.',
+                            icon: 'info',
+                            confirmButtonText: 'Aceptar'
+                        });
+                        return;
+                    }
                 }
 
                 Swal.fire({
