@@ -34,33 +34,88 @@
 					</div>
 				</div>
 
-				<!-- Stats Cards -->
-				<section class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+				<!-- KPI Cards -->
+				<section class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+					<!-- KPI: Mascotas publicadas -->
 					<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card animate-fade-up">
-						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Total Mascotas</p>
-						<p class="mt-2 text-3xl font-semibold">{{ $stats['pets_total'] ?? 0 }}</p>
+						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Mascotas visibles (publicadas)</p>
+						<p class="mt-2 text-3xl font-semibold">{{ $kpis['pets_published'] ?? 0 }}</p>
+						@php $pb = $publishedBreakdown ?? []; $sumPB = array_sum($pb); @endphp
+						<div class="mt-3 h-2 w-full rounded-full bg-neutral-mid/20 overflow-hidden flex">
+							@foreach($pb as $status => $cnt)
+								@php $pct = ($sumPB>0? max(3, round(($cnt/$sumPB)*100)) : 0); $color = $status==='available' ? 'bg-emerald-500' : 'bg-primary'; @endphp
+								<div class="h-2 {{ $color }}" data-bar-width="{{ $pct }}"></div>
+							@endforeach
+						</div>
+						<div class="mt-2 text-[11px] text-neutral-dark/60">{{ ($publishedBreakdown['available'] ?? 0) }} disponibles • {{ ($publishedBreakdown['published'] ?? 0) }} publicados</div>
 					</div>
+
+					<!-- KPI: Solicitudes nuevas 7 días -->
 					<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card animate-fade-up" style="animation-delay:.05s">
-						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Publicadas</p>
-						<p class="mt-2 text-3xl font-semibold">{{ $stats['pets_published'] ?? '—' }}</p>
+						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Ingresaron últimos 7 días</p>
+						<p class="mt-2 text-3xl font-semibold">{{ $kpis['new_apps_7d'] ?? 0 }}</p>
+						@php $max7 = (!empty($seriesDailyApps7d) ? max($seriesDailyApps7d) : 1); @endphp
+						<div class="mt-3 flex items-end gap-1" style="min-height:32px">
+							@foreach($seriesDailyApps7d ?? [] as $d => $v)
+								@php $h = $max7>0 ? max(3, round(($v/$max7)*100)) : 0; @endphp
+								<div class="w-2 rounded bg-primary" data-bar-height="{{ $h }}" title="{{ $d }}: {{ $v }}"></div>
+							@endforeach
+						</div>
 					</div>
+
+					<!-- KPI: Pendientes -->
 					<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card animate-fade-up" style="animation-delay:.1s">
-						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Solicitudes Activas</p>
-						<p class="mt-2 text-3xl font-semibold">{{ $stats['applications_active'] ?? '—' }}</p>
+						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">En cola de revisión</p>
+						<p class="mt-2 text-3xl font-semibold">{{ $kpis['pending_apps'] ?? 0 }}</p>
+						@php $pb2 = $pendingBreakdown ?? []; $sumP = array_sum($pb2); @endphp
+						<div class="mt-3 h-2 w-full rounded-full bg-neutral-mid/20 overflow-hidden flex">
+							@foreach(['submitted'=>'bg-blue-400','pending'=>'bg-amber-400','under_review'=>'bg-purple-400'] as $k=>$color)
+								@php $cnt = (int)($pb2[$k] ?? 0); $pct = ($sumP>0? max(3, round(($cnt/$sumP)*100)) : 0); @endphp
+								<div class="h-2 {{ $color }}" data-bar-width="{{ $pct }}"></div>
+							@endforeach
+						</div>
+						<div class="mt-2 text-[11px] text-neutral-dark/60">Subm.: {{ $pb2['submitted'] ?? 0 }} • Pend.: {{ $pb2['pending'] ?? 0 }} • Rev.: {{ $pb2['under_review'] ?? 0 }}</div>
 					</div>
+
+					<!-- KPI: Confirmadas 30 días -->
 					<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card animate-fade-up" style="animation-delay:.15s">
-						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Solicitudes Totales</p>
-						<p class="mt-2 text-3xl font-semibold">{{ $stats['applications_total'] ?? 0 }}</p>
+						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Cerradas (30 días)</p>
+						<p class="mt-2 text-3xl font-semibold">{{ $kpis['confirmed_30d'] ?? 0 }}</p>
+						@php $max30 = (!empty($seriesConfirmed30d) ? max($seriesConfirmed30d) : 1); @endphp
+						<div class="mt-3 flex items-end gap-1" style="min-height:32px">
+							@foreach(array_slice($seriesConfirmed30d ?? [], -14, 14, true) as $d => $v)
+								@php $h = $max30>0 ? max(3, round(($v/$max30)*100)) : 0; @endphp
+								<div class="w-2 rounded bg-emerald-500" data-bar-height="{{ $h }}" title="{{ $d }}: {{ $v }}"></div>
+							@endforeach
+						</div>
 					</div>
+
+					<!-- KPI: Publicadas +30 días -->
 					<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card animate-fade-up" style="animation-delay:.2s">
-						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Aprobadas</p>
-						<p class="mt-2 text-3xl font-semibold">{{ $stats['applications_approved'] ?? '—' }}</p>
-					</div>
-					<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card animate-fade-up" style="animation-delay:.25s">
-						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Rechazadas</p>
-						<p class="mt-2 text-3xl font-semibold">{{ $stats['applications_rejected'] ?? '—' }}</p>
+						<p class="text-xs text-neutral-dark/70 dark:text-neutral-300">Antigüedad de publicadas</p>
+						<p class="mt-2 text-3xl font-semibold">{{ $kpis['pets_published_30d'] ?? 0 }}</p>
+						@php $pctOld = $publishedAging['percentOld'] ?? 0; @endphp
+						<div class="mt-3 h-2 w-full rounded-full bg-neutral-mid/20 overflow-hidden">
+							<div class="h-2 bg-amber-500" data-bar-width="{{ max(3, $pctOld) }}"></div>
+						</div>
+						<div class="mt-2 text-[11px] text-neutral-dark/60">{{ $pctOld }}% con más de 30 días</div>
 					</div>
 				</section>
+
+				<!-- Filtros de fecha para analíticas -->
+				<form method="GET" class="mt-6 bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-4 flex flex-wrap items-end gap-3">
+					<div>
+						<label for="from" class="text-xs text-neutral-dark/70 dark:text-neutral-300">Desde</label>
+						<input id="from" name="from" type="date" class="mt-1 rounded-xl border-neutral-mid/40" value="{{ optional($rangeStart ?? null)->toDateString() }}">
+					</div>
+					<div>
+						<label for="to" class="text-xs text-neutral-dark/70 dark:text-neutral-300">Hasta</label>
+						<input id="to" name="to" type="date" class="mt-1 rounded-xl border-neutral-mid/40" value="{{ optional($rangeEnd ?? null)->toDateString() }}">
+					</div>
+					<div>
+						<button class="btn btn-primary">Aplicar</button>
+					</div>
+				</form>
 
 				<!-- Breakdown + Chart placeholder -->
 				<section class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -128,9 +183,9 @@
 						</div>
 					</div>
 					<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card">
-						<h2 class="text-lg font-semibold">Estado de Solicitudes</h2>
+						<h2 class="text-lg font-semibold">Distribución de estados</h2>
 						<ul class="mt-3 space-y-2 text-sm">
-							@php $labels = ['pending' => 'Pendiente', 'under_review' => 'Revisión', 'approved' => 'Aprobada', 'rejected' => 'Rechazada']; @endphp
+							@php $labels = ['submitted' => 'Enviada', 'pending' => 'Pendiente', 'under_review' => 'Revisión', 'interview' => 'Entrevista', 'approved' => 'Aprobada', 'adopted' => 'Adoptada', 'rejected' => 'Rechazada']; @endphp
 							@forelse($statusBreakdown as $status => $total)
 								<li class="flex items-center justify-between">
 									<span class="capitalize">{{ $labels[$status] ?? ucfirst($status) }}</span>
@@ -144,7 +199,134 @@
 					</div>
 				</section>
 
-				<!-- Quick Actions -->
+			<!-- Analíticas: Embudo, Tendencia, Inventario -->
+			<section class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+				<!-- Embudo de adopción -->
+				<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card lg:col-span-2">
+					<h2 class="text-lg font-semibold">Embudo del proceso de adopción</h2>
+					@php $maxFunnel = (!empty($funnel) ? max($funnel) : 1); @endphp
+					<div class="mt-4 space-y-2">
+						@foreach(['published'=>'Publicadas','con_solicitudes'=>'Con solicitudes','under_review'=>'En revisión','interview'=>'Entrevista','approved'=>'Aprobadas','adopted'=>'Adoptadas'] as $key=>$label)
+							@php $val = (int)($funnel[$key] ?? 0); $pct = $maxFunnel > 0 ? max(5, round($val/$maxFunnel*100)) : 0; @endphp
+							<div>
+								<div class="flex items-center justify-between text-xs">
+									<span class="text-neutral-dark/70">{{ $label }}</span>
+									<span class="font-medium">{{ $val }}</span>
+								</div>
+								<div class="mt-1 h-2 rounded-full bg-neutral-mid/20">
+									<div class="h-2 rounded-full bg-primary" data-bar-width="{{ $pct }}"></div>
+								</div>
+							</div>
+						@endforeach
+					</div>
+				</div>
+
+				<!-- Tendencia de solicitudes -->
+				<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card">
+					<h2 class="text-lg font-semibold">Tendencia de solicitudes (mensual)</h2>
+					@php $maxTrend = (!empty($trend) ? max($trend) : 1); @endphp
+					<div class="mt-4 flex items-end gap-1" style="min-height:120px">
+						@foreach($trend as $month => $total)
+							@php $h = $maxTrend>0 ? max(4, round(($total/$maxTrend)*100)) : 0; @endphp
+							<div class="flex flex-col items-center gap-1">
+								<div class="w-3 rounded bg-primary" data-bar-height="{{ $h }}"></div>
+								<div class="text-[10px] text-neutral-dark/70">{{ \Carbon\Carbon::parse($month)->format('M') }}</div>
+							</div>
+						@endforeach
+					</div>
+				</div>
+			</section>
+
+			<!-- Inventario por estado de mascota -->
+			<section class="mt-8 bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card">
+				<h2 class="text-lg font-semibold">Inventario por estado de mascota</h2>
+				@php $maxInv = (!empty($inventory) ? max($inventory) : 1); @endphp
+				<div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+					@forelse($inventory as $status => $total)
+						@php $pct = $maxInv>0 ? max(5, round(($total/$maxInv)*100)) : 0; @endphp
+						<div>
+							<div class="flex items-center justify-between text-sm">
+								<span class="capitalize">{{ str_replace('_',' ', $status) }}</span>
+								<span class="font-medium">{{ $total }}</span>
+							</div>
+							<div class="mt-1 h-2 rounded-full bg-neutral-mid/20">
+								<div class="h-2 rounded-full bg-emerald-500" data-bar-width="{{ $pct }}"></div>
+							</div>
+						</div>
+					@empty
+						<p class="text-sm text-neutral-dark/70">Sin datos de inventario.</p>
+					@endforelse
+				</div>
+			</section>
+
+			<!-- Tablas accionables -->
+			<section class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+				<!-- Mascotas sin solicitudes -->
+				<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card">
+					<h2 class="text-lg font-semibold">Mascotas sin solicitudes</h2>
+					<div class="mt-3 overflow-x-auto">
+						<table class="min-w-full text-sm">
+							<thead>
+								<tr class="text-left text-neutral-dark/70">
+									<th class="py-2 pe-3">Mascota</th>
+									<th class="py-2 pe-3">Fecha publicación</th>
+									<th class="py-2 pe-3">Días publicada</th>
+									<th class="py-2">Acciones</th>
+								</tr>
+							</thead>
+							<tbody>
+								@forelse($petsWithoutApps as $p)
+									<tr class="border-t border-neutral-mid/20">
+										<td class="py-2 pe-3 font-medium">{{ $p->name ?? ('Mascota #' . $p->id) }}</td>
+										<td class="py-2 pe-3">{{ \Carbon\Carbon::parse($p->created_at)->format('Y-m-d') }}</td>
+										<td class="py-2 pe-3">{{ $p->days_published }}</td>
+										<td class="py-2">
+											<a href="{{ route('orgs.pets.edit', $p->id) }}" class="text-primary hover:underline">Editar</a>
+										</td>
+									</tr>
+								@empty
+									<tr><td colspan="4" class="py-3 text-neutral-dark/70">No hay mascotas sin solicitudes.</td></tr>
+								@endforelse
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- Solicitudes estancadas -->
+				<div class="bg-white dark:bg-neutral-dark rounded-2xl border border-neutral-mid/30 p-5 shadow-card">
+					<h2 class="text-lg font-semibold">Solicitudes estancadas (>7 días)</h2>
+					<div class="mt-3 overflow-x-auto">
+						<table class="min-w-full text-sm">
+							<thead>
+								<tr class="text-left text-neutral-dark/70">
+									<th class="py-2 pe-3">Mascota</th>
+									<th class="py-2 pe-3">Solicitante</th>
+									<th class="py-2 pe-3">Estado</th>
+									<th class="py-2 pe-3">Última actualización</th>
+									<th class="py-2">Acciones</th>
+								</tr>
+							</thead>
+							<tbody>
+								@forelse($stuckApps as $a)
+									<tr class="border-t border-neutral-mid/20">
+										<td class="py-2 pe-3">{{ $a->pet->name ?? ('Mascota #' . $a->pet_id) }}</td>
+										<td class="py-2 pe-3">{{ $a->user->name ?? 'N/D' }}</td>
+										<td class="py-2 pe-3 capitalize">{{ $a->status }}</td>
+										<td class="py-2 pe-3">{{ \Carbon\Carbon::parse($a->updated_at)->diffForHumans() }}</td>
+										<td class="py-2">
+											<a href="{{ route('submissions.show', $a->id) }}" class="text-primary hover:underline">Ver</a>
+										</td>
+									</tr>
+								@empty
+									<tr><td colspan="5" class="py-3 text-neutral-dark/70">No hay solicitudes estancadas.</td></tr>
+								@endforelse
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+
+			<!-- Quick Actions -->
 				<section class="mt-8">
 					<h2 class="text-lg font-semibold">Acciones rápidas</h2>
 					<div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -198,6 +380,18 @@
 						}
 					});
 				}
+
+				// Apply bar widths/heights for simple charts
+				document.querySelectorAll('[data-bar-width]').forEach(function (el) {
+					var w = parseInt(el.getAttribute('data-bar-width') || '0', 10);
+					w = Math.max(0, Math.min(100, w));
+					el.style.width = w + '%';
+				});
+				document.querySelectorAll('[data-bar-height]').forEach(function (el) {
+					var h = parseInt(el.getAttribute('data-bar-height') || '0', 10);
+					h = Math.max(0, Math.min(100, h));
+					el.style.height = h + '%';
+				});
 			});
 		</script>
 		@include('partials.footer')
