@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\MyMailMailable;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class AdoptionApplicationController extends Controller
 {
@@ -167,10 +168,16 @@ class AdoptionApplicationController extends Controller
 
             // Notify organization (all recipients)
             if ($orgRecipients->isNotEmpty()) {
+                $petName = $application->pet->name ?? ('ID ' . $application->pet_id);
+                $hero = $application->pet->cover_image ? Storage::url($application->pet->cover_image) : null;
                 $detailsOrg = [
-                    'subject' => 'Nueva solicitud de adopción: ' . ($application->pet->name ?? ('ID ' . $application->pet_id)),
+                    'subject' => 'Nueva solicitud de adopción: ' . $petName,
                     'title'   => 'Nueva solicitud de adopción',
-                    'intro'   => 'Has recibido una nueva solicitud para la mascota: ' . ($application->pet->name ?? ('ID ' . $application->pet_id)) . '.',
+                    'intro'   => 'Has recibido una nueva solicitud para la mascota: ' . $petName . '.',
+                    'preheader' => 'Nueva solicitud de adopción para ' . $petName,
+                    'brand_color' => config('brand.primary_color', '#05706C'),
+                    'logo_url' => config('brand.logo_url'),
+                    'hero_url' => $hero,
                     'items'   => [
                         'Solicitante' => $user->name ?? ('Usuario #' . $user->id),
                         'Email'       => $user->email ?? 'N/D',
@@ -189,12 +196,18 @@ class AdoptionApplicationController extends Controller
 
             // Notify adopter (user primary email)
             if (!empty($user->email) && filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+                $petName = $application->pet->name ?? ('ID ' . $application->pet_id);
+                $hero = $application->pet->cover_image ? Storage::url($application->pet->cover_image) : null;
                 $detailsAdopter = [
-                    'subject' => 'Tu solicitud fue enviada: ' . ($application->pet->name ?? ('ID ' . $application->pet_id)),
+                    'subject' => 'Tu solicitud fue enviada: ' . $petName,
                     'title'   => 'Gracias por tu solicitud',
                     'intro'   => 'Hemos recibido tu solicitud de adopción. Te compartimos un resumen:',
+                    'preheader' => 'Hemos recibido tu solicitud para ' . $petName,
+                    'brand_color' => config('brand.primary_color', '#05706C'),
+                    'logo_url' => config('brand.logo_url'),
+                    'hero_url' => $hero,
                     'items'   => [
-                        'Mascota'      => $application->pet->name ?? ('ID ' . $application->pet_id),
+                        'Mascota'      => $petName,
                         'Organización' => $org->name ?? ('ID ' . $application->organization_id),
                         'Estado'       => $application->status,
                         'Fecha'        => optional($application->created_at)?->format('Y-m-d H:i') ?? now()->format('Y-m-d H:i'),

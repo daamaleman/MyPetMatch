@@ -72,6 +72,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('adoptions', OrgAdoptionApplicationController::class)->parameters([
             'adoptions' => 'adoption',
         ]);
+
+    // Reports for organizations
+    Route::get('/reports', [\App\Http\Controllers\OrgReportsController::class, 'index'])->name('reports');
     });
 
     // Zona adoptantes (dashboard y solicitudes propias)

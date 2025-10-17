@@ -130,6 +130,7 @@
             <a href="{{ route('orgs.dashboard') }}" class="{{ request()->routeIs('orgs.dashboard') ? 'text-primary font-medium' : 'hover:text-primary' }}">Resumen</a>
             <a href="{{ route('orgs.pets.index') }}" class="{{ (request()->routeIs('orgs.pets.*') || request()->routeIs('pets.*')) ? 'text-primary font-medium' : 'hover:text-primary' }}">Mascotas</a>
             <a href="{{ route('submissions.index') }}" class="{{ request()->routeIs('submissions.*') ? 'text-primary font-medium' : 'hover:text-primary' }}">Solicitudes</a>
+            <a href="{{ route('orgs.reports') }}" class="{{ request()->routeIs('orgs.reports') ? 'text-primary font-medium' : 'hover:text-primary' }}">Reportes</a>
         </div>
     </div>
     @elseif(($role === 'adoptante' || $role === 'admin') && (request()->routeIs('adoptions.*') || request()->routeIs('orgs.*') || request()->routeIs('submissions.*') || request()->routeIs('pets.*')))
