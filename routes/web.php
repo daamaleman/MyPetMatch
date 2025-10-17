@@ -7,6 +7,7 @@ use App\Http\Controllers\OrgPetController;
 use App\Http\Controllers\OrgAdoptionApplicationController;
 use App\Http\Controllers\OrganizationDirectoryController;
 use App\Http\Controllers\PetController;
+use App\Http\Controllers\SendEmailController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,6 +24,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Local-only: simple SMTP test endpoint
+if (app()->environment('local', 'testing')) {
+    Route::get('/test-mail', [SendEmailController::class, 'test']);
+}
 
 Route::get('/about', function () {
     return view('about');

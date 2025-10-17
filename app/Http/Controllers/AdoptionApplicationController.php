@@ -8,6 +8,10 @@ use App\Models\Organization;
 use App\Models\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use App\Mail\MyMailMailable;
+use App\Models\User;
 
 class AdoptionApplicationController extends Controller
 {
@@ -146,6 +150,71 @@ class AdoptionApplicationController extends Controller
             'message' => $validated['message'] ?? null,
             'answers' => $validated['answers'] ?? null,
         ]);
+
+        // Send emails to organization and adopter (best-effort, do not block UX on failures)
+        try {
+            $application->load(['pet', 'organization', 'user.adopterProfile']);
+
+            // Build organization recipients: org email + all users in the organization
+            $orgRecipients = collect([$org->email])
+                ->merge(User::where('organization_id', $org->id)
+                    ->whereNotNull('email')
+                    ->pluck('email'))
+                ->map(fn($e) => trim((string)$e))
+                ->filter(fn($e) => !empty($e) && filter_var($e, FILTER_VALIDATE_EMAIL))
+                ->unique()
+                ->values();
+
+            // Notify organization (all recipients)
+            if ($orgRecipients->isNotEmpty()) {
+                $detailsOrg = [
+                    'subject' => 'Nueva solicitud de adopción: ' . ($application->pet->name ?? ('ID ' . $application->pet_id)),
+                    'title'   => 'Nueva solicitud de adopción',
+                    'intro'   => 'Has recibido una nueva solicitud para la mascota: ' . ($application->pet->name ?? ('ID ' . $application->pet_id)) . '.',
+                    'items'   => [
+                        'Solicitante' => $user->name ?? ('Usuario #' . $user->id),
+                        'Email'       => $user->email ?? 'N/D',
+                        'Teléfono'    => optional($user->adopterProfile)->phone ?? 'N/D',
+                        'Mensaje'     => $application->message ?? '—',
+                        'Estado'      => $application->status,
+                        'Fecha'       => optional($application->created_at)?->format('Y-m-d H:i') ?? now()->format('Y-m-d H:i'),
+                    ],
+                    'cta' => [
+                        'label' => 'Revisar solicitud',
+                        'href'  => route('submissions.show', $application->id),
+                    ],
+                ];
+                Mail::to($orgRecipients->all())->send(new MyMailMailable($detailsOrg));
+            }
+
+            // Notify adopter (user primary email)
+            if (!empty($user->email) && filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+                $detailsAdopter = [
+                    'subject' => 'Tu solicitud fue enviada: ' . ($application->pet->name ?? ('ID ' . $application->pet_id)),
+                    'title'   => 'Gracias por tu solicitud',
+                    'intro'   => 'Hemos recibido tu solicitud de adopción. Te compartimos un resumen:',
+                    'items'   => [
+                        'Mascota'      => $application->pet->name ?? ('ID ' . $application->pet_id),
+                        'Organización' => $org->name ?? ('ID ' . $application->organization_id),
+                        'Estado'       => $application->status,
+                        'Fecha'        => optional($application->created_at)?->format('Y-m-d H:i') ?? now()->format('Y-m-d H:i'),
+                        'Mensaje'      => $application->message ?? '—',
+                    ],
+                    'cta' => [
+                        'label' => 'Ver solicitud',
+                        'href'  => route('submissions.show', $application->id),
+                    ],
+                    'footer' => 'Si no fuiste tú quien envió esta solicitud, por favor ignora este correo.',
+                ];
+                Mail::to($user->email)->send(new MyMailMailable($detailsAdopter));
+            }
+        } catch (\Throwable $e) {
+            // Swallow exceptions to avoid blocking the flow; log for troubleshooting
+            Log::error('Error enviando correos de solicitud de adopción', [
+                'application_id' => $application->id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return redirect()->route('pets.details', $pet->id)
             ->with('status', 'Tu solicitud de adopción fue enviada. La organización revisará tu caso.');
