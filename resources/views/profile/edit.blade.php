@@ -62,7 +62,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="text-sm" for="phone">Teléfono @if($requireAdopter)<span class="text-danger">*</span>@endif</label>
-                                <input id="phone" name="phone" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('phone', $ap->phone) }}" @if($requireAdopter) required @endif>
+                                <input id="phone" name="phone" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('phone', $ap->phone) }}" placeholder="1234-5678" pattern="^\d{4}-\d{4}$" maxlength="9" inputmode="numeric" @if($requireAdopter) required @endif>
                                 @error('phone')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
@@ -130,7 +130,7 @@
                             </div>
                             <div>
                                 <label class="text-sm" for="organization_phone">Teléfono</label>
-                                <input id="organization_phone" name="organization_phone" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('organization_phone', $org->phone) }}">
+                                <input id="organization_phone" name="organization_phone" type="text" class="mt-1 block w-full rounded-xl border-neutral-mid/40" value="{{ old('organization_phone', $org->phone) }}" placeholder="1234-5678" pattern="^\d{4}-\d{4}$" maxlength="9" inputmode="numeric">
                                 @error('organization_phone')<p class="text-xs text-danger mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
@@ -208,6 +208,45 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Normalize and mask local phone numbers as 1234-5678
+        function normalizeToLocalFormat(raw) {
+            if (!raw) return '';
+            var digits = ('' + raw).replace(/\D+/g, '');
+            // Keep only last 8 digits if longer
+            if (digits.length > 8) digits = digits.slice(-8);
+            // Left pad if fewer than 8? We'll just return as-is and mask will show partial
+            var part1 = digits.slice(0, 4);
+            var part2 = digits.slice(4, 8);
+            if (!part1 && !part2) return '';
+            return part1 + (part2 ? '-' + part2 : '');
+        }
+
+        function attachPhoneMask(input) {
+            if (!input) return;
+            var updating = false;
+            var handler = function(e) {
+                if (updating) return;
+                updating = true;
+                var pos = input.selectionStart || 0;
+                var beforeLen = input.value.length;
+                var formatted = normalizeToLocalFormat(input.value);
+                input.value = formatted;
+                // Try to keep caret near end for a better UX
+                var afterLen = input.value.length;
+                var delta = afterLen - beforeLen;
+                try { input.setSelectionRange(Math.max(0, pos + delta), Math.max(0, pos + delta)); } catch(err) {}
+                updating = false;
+            };
+            input.addEventListener('input', handler);
+            input.addEventListener('blur', handler);
+            // Initial normalize existing value (from server or old())
+            input.value = normalizeToLocalFormat(input.value);
+        }
+
+        // Attach to both adopter and organization phone fields if present
+        attachPhoneMask(document.getElementById('phone'));
+        attachPhoneMask(document.getElementById('organization_phone'));
+
         // Helper: serialize a form's relevant inputs to a string for comparison
         function serializeForm(form) {
             var parts = [];
