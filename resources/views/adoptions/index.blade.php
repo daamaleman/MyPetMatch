@@ -167,14 +167,14 @@
 						@endif
 					</div>
 				</div>
-				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
 					@forelse($pets as $pet)
-					<div class="rounded-2xl border border-neutral-mid/30 bg-white shadow-card overflow-hidden flex flex-col transition hover:-translate-y-0.5 hover:shadow-lg">
+					<div class="rounded-2xl border border-neutral-mid/30 bg-white shadow-card overflow-hidden flex flex-col h-full transition hover:-translate-y-0.5 hover:shadow-lg">
 						<a href="{{ route('pets.details', $pet->id) }}" class="block">
 							@if($pet->cover_image)
-							<img src="{{ \Illuminate\Support\Facades\Storage::url($pet->cover_image) }}" alt="{{ $pet->name }}" class="w-full h-48 object-cover">
+							<img src="{{ \Illuminate\Support\Facades\Storage::url($pet->cover_image) }}" alt="{{ $pet->name }}" class="w-full h-44 md:h-52 lg:h-56 object-cover rounded-t-2xl">
 							@else
-							<div class="w-full h-48 flex items-center justify-center text-sm text-neutral-dark/70">Sin imagen</div>
+							<div class="w-full h-44 md:h-52 lg:h-56 flex items-center justify-center text-sm text-neutral-dark/70 bg-neutral-mid/10 rounded-t-2xl">Sin imagen</div>
 							@endif
 						</a>
 						<div class="p-4 flex-1 flex flex-col">
