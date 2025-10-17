@@ -109,7 +109,7 @@
                     <h2 class="text-lg font-semibold">Perfil de Organización</h2>
                     <p class="text-sm text-neutral-dark/70">Datos públicos de tu organización que verán los adoptantes.</p>
                     @php $org = optional(auth()->user()->organization); @endphp
-                    <form class="mt-4 max-w-2xl" method="POST" action="{{ route('profile.organization.update') }}">
+                    <form id="organization-update-form" class="mt-4 max-w-2xl" method="POST" action="{{ route('profile.organization.update') }}">
                         @csrf
                         @method('PATCH')
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -150,7 +150,7 @@
                             </div>
                         </div>
                         <div class="mt-4">
-                            <button class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-primary" data-confirm-form="organization-update-form">Guardar</button>
                         </div>
                     </form>
                 </div>
@@ -362,9 +362,39 @@
                     confirmButtonText: 'Sí, guardar',
                     cancelButtonText: 'Cancelar'
                 }).then(function(res) {
-                    if (res.isConfirmed) {
-                        form.submit();
+                    if (!res.isConfirmed) return;
+
+                    // If submitting adopter or organization forms, use fetch to submit and then redirect accordingly
+                    var targetRedirect = null;
+                    if (formId === 'adopter-update-form') targetRedirect = "{{ route('adoptions.browse') }}";
+                    if (formId === 'organization-update-form') targetRedirect = "{{ route('orgs.dashboard') }}";
+
+                    if (targetRedirect) {
+                        var data = new FormData(form);
+                        fetch(form.action, {
+                            method: form.method || 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: data
+                        }).then(function(resp) {
+                            if (resp.ok) {
+                                window.location.href = targetRedirect;
+                            } else {
+                                resp.text().then(function(t) {
+                                    console.error('Save failed', t);
+                                    Swal.fire('Error', 'No se pudo guardar. Intenta de nuevo.', 'error');
+                                });
+                            }
+                        }).catch(function(err) {
+                            console.error(err);
+                            Swal.fire('Error', 'No se pudo guardar. Intenta de nuevo.', 'error');
+                        });
+                        return;
                     }
+
+                    form.submit();
                 });
             });
         });
