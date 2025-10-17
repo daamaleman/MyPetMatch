@@ -115,10 +115,11 @@
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<div>
 					<label class="text-sm">Estado</label>
+					@php $st = old('status', 'published'); @endphp
 					<select name="status" class="mt-1 block w-full rounded-xl border-neutral-mid/40">
-						<option value="draft" @selected(old('status')==='draft' )>Borrador</option>
-						<option value="published" @selected(old('status')==='published' )>Publicado</option>
-						<option value="archived" @selected(old('status')==='archived' )>Archivado</option>
+						<option value="draft" @selected($st==='draft' )>Borrador</option>
+						<option value="published" @selected($st==='published' )>Publicado</option>
+						<option value="archived" @selected($st==='archived' )>Archivado</option>
 					</select>
 				</div>
 				<div>
