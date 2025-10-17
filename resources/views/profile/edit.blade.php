@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,9 +8,14 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="color-scheme" content="light dark">
-    <style>html{scroll-behavior:smooth}</style>
+    <style>
+        html {
+            scroll-behavior: smooth
+        }
+    </style>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
+
 <body class="font-poppins bg-neutral-light text-neutral-dark dark:bg-neutral-dark dark:text-neutral-white">
     @include('partials.header')
 
@@ -21,14 +27,14 @@
             </div>
             <div>
                 @if (session('status'))
-                    <span class="inline-block rounded-xl border border-neutral-mid/40 bg-white dark:bg-neutral-dark px-3 py-2 text-sm">{{ session('status') }}</span>
+                <span class="inline-block rounded-xl border border-neutral-mid/40 bg-white dark:bg-neutral-dark px-3 py-2 text-sm">{{ session('status') }}</span>
                 @endif
             </div>
         </div>
 
-        @php 
-            $role = auth()->user()->role ?? null; 
-            $requireAdopter = ($requireAdopter ?? false) ? true : false;
+        @php
+        $role = auth()->user()->role ?? null;
+        $requireAdopter = ($requireAdopter ?? false) ? true : false;
         @endphp
 
         <div class="mt-6 grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -45,12 +51,12 @@
                     <h2 class="text-lg font-semibold">Datos de Adoptante</h2>
                     <p class="text-sm text-neutral-dark/70">Estos datos ayudarán a las organizaciones a contactarte.</p>
                     @if($requireAdopter)
-                        <div class="mt-3 rounded-xl border border-warning/30 bg-yellow-50 dark:bg-yellow-900/20 text-sm p-3 text-neutral-dark/80 dark:text-neutral-200">
-                            Por favor completa los datos marcados como obligatorios para continuar con tu solicitud de adopción.
-                        </div>
+                    <div class="mt-3 rounded-xl border border-warning/30 bg-yellow-50 dark:bg-yellow-900/20 text-sm p-3 text-neutral-dark/80 dark:text-neutral-200">
+                        Por favor completa los datos marcados como obligatorios para continuar con tu solicitud de adopción.
+                    </div>
                     @endif
                     @php $ap = optional(auth()->user()->adopterProfile); @endphp
-                    <form class="mt-4 max-w-xl" method="POST" action="{{ route('profile.adopter.update', request()->only(['from','require_adopter'])) }}">
+                    <form id="adopter-update-form" class="mt-4 max-w-xl" method="POST" action="{{ route('profile.adopter.update', request()->only(['from','require_adopter'])) }}">
                         @csrf
                         @method('PATCH')
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -91,7 +97,7 @@
                             </div>
                         </div>
                         <div class="mt-4">
-                            <button class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-primary" data-confirm-form="adopter-update-form">Guardar</button>
                         </div>
                     </form>
                 </div>
@@ -169,11 +175,11 @@
                     <h3 class="font-semibold">Tu cuenta y permisos</h3>
                     <p class="text-sm mt-1">Rol actual: {{ ucfirst($role ?? 'usuario') }}</p>
                     @if($role==='adoptante')
-                        <p class="text-sm text-neutral-dark/70 mt-2">Como adoptante puedes explorar mascotas y enviar solicitudes.</p>
-                        <a href="{{ route('adoptions.browse') }}" class="btn btn-primary mt-3">Ver mascotas disponibles</a>
+                    <p class="text-sm text-neutral-dark/70 mt-2">Como adoptante puedes explorar mascotas y enviar solicitudes.</p>
+                    <a href="{{ route('adoptions.browse') }}" class="btn btn-primary mt-3">Ver mascotas disponibles</a>
                     @elseif(in_array($role,['organizacion','admin']))
-                        <p class="text-sm text-neutral-dark/70 mt-2">Gestiona mascotas y solicitudes de tu organización.</p>
-                        <a href="{{ route('orgs.pets.index') }}" class="btn btn-primary mt-3">Gestionar mascotas</a>
+                    <p class="text-sm text-neutral-dark/70 mt-2">Gestiona mascotas y solicitudes de tu organización.</p>
+                    <a href="{{ route('orgs.pets.index') }}" class="btn btn-primary mt-3">Gestionar mascotas</a>
                     @endif
                 </div>
                 <div class="rounded-2xl border border-neutral-mid/30 bg-white dark:bg-neutral-dark p-6">
@@ -197,4 +203,58 @@
     </main>
     @include('partials.footer')
 </body>
+
 </html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Generic confirm for simple forms
+        document.querySelectorAll('[data-confirm-form]').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                var formId = btn.getAttribute('data-confirm-form');
+                var form = document.getElementById(formId);
+                if (!form) return;
+
+                // Special handling for delete-account-form: ask for password
+                if (formId === 'delete-account-form') {
+                    Swal.fire({
+                        title: 'Eliminar cuenta',
+                        text: 'Esta acción es irreversible. Ingresa tu contraseña para confirmar.',
+                        input: 'password',
+                        inputPlaceholder: 'Contraseña',
+                        showCancelButton: true,
+                        confirmButtonText: 'Eliminar cuenta',
+                        cancelButtonText: 'Cancelar',
+                        icon: 'warning',
+                        preConfirm: (pwd) => {
+                            if (!pwd) {
+                                Swal.showValidationMessage('La contraseña es obligatoria');
+                            }
+                            return pwd;
+                        }
+                    }).then(function(res) {
+                        if (res.isConfirmed) {
+                            var input = document.getElementById('delete-account-password');
+                            if (input) input.value = res.value;
+                            form.submit();
+                        }
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Se guardarán los cambios en tu perfil.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, guardar',
+                    cancelButtonText: 'Cancelar'
+                }).then(function(res) {
+                    if (res.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
